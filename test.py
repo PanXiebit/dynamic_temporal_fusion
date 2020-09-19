@@ -16,7 +16,7 @@ import torch.nn.functional as F
 import ctcdecode
 from metrics.wer import get_wer_delsubins
 from itertools import groupby
-from src.model.full_conv import MainStream
+from src.model.full_conv_v2 import MainStream
 
 def main():
     opts = parse_args()

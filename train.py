@@ -5,7 +5,7 @@ from utils import init_logging, LossManager, ModelManager
 import os
 # from src.model.dilated_slr import DilatedSLRNet
 from src.criterion.ctc_loss import CtcLoss
-from src.model.full_conv import MainStream
+from src.model.full_conv_v1 import MainStream
 from src.trainer import Trainer
 import logging
 import numpy as np
@@ -47,15 +47,22 @@ def main():
     model = MainStream(vocab_size)
     criterion = CtcLoss(opts, blank_id, device, reduction="none")
 
+    # print(model)
     # Build trainer
     trainer = Trainer(opts, model, criterion, vocabulary, vocab_size, blank_id)
 
     if os.path.exists(opts.check_point):
         logging.info("Loading checkpoint file from {}".format(opts.check_point))
         epoch, num_updates, loss = trainer.load_checkpoint(opts.check_point)
+    elif os.path.exists(opts.pretrain):
+        logging.info("Loading checkpoint file from {}".format(opts.pretrain))
+        trainer.pretrain(opts)
+        trainer.cnn_freeze()
+        epoch, num_updates, loss = 0, 0, 0.0
     else:
         logging.info("No checkpoint file in found in {}".format(opts.check_point))
         epoch, num_updates, loss = 0, 0, 0.0
+
 
     trainer.set_num_updates(num_updates)
     model_manager = ModelManager(max_num_models=5)

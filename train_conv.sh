@@ -1,5 +1,5 @@
 python train.py \
-	--task train \
+	--task train_v1_2 \
 	--log_dir ./log/reimp-conv \
 	--learning_rate 1e-4 \
 	--weight_decay 1e-4 \
@@ -11,4 +11,5 @@ python train.py \
 	--batch_size 2 \
 	--stage_epoch 100 \
 	--beam_width 5 \
-	#--DEBUG True
+	--pretrain "/home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/ep26_27.2000.pkl" \
+  --max_epoch 100

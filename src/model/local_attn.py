@@ -7,19 +7,43 @@ import math, copy, time
 from torch.autograd import Variable
 import numpy as np
 
+class Encoder(nn.Module):
+    def __init__(self, num_layers, h, d_model, dropout):
+        super(Encoder, self).__init__()
+        self.enc_layers = nn.ModuleList([EncoderLayer(h, d_model, dropout)
+                                          for _ in range(num_layers)])
+    def forward(self, x, mask):
+        for layer in self.enc_layers:
+            x = layer(x, mask)
+        return x
 
-def subsequent_mask(size):
-    "Mask out subsequent positions."
-    attn_shape = (1, size, size)
-    subsequent_mask = np.triu(np.ones(attn_shape), k=1).astype('uint8')
-    return torch.from_numpy(subsequent_mask) == 0
+class EncoderLayer(nn.Module):
+    def __init__(self, h, d_model, dropout=0.1):
+        super(EncoderLayer, self).__init__()
+        self.multihead_attn = MultiHeadedAttention(h, d_model, dropout)
+        self.layernorm = LayerNorm(d_model, eps=1e-6)
+        self.dropout = nn.Dropout(dropout)
 
-def make_trg_mask(tgt, pad):
-    "Create a mask to hide padding and future words."
-    tgt_mask = (tgt != pad).unsqueeze(-2)
-    tgt_mask = tgt_mask & Variable(
-        subsequent_mask(tgt.size(-1)).type_as(tgt_mask.data))
-    return tgt_mask
+    def forward(self, x, mask=None):
+        out = self.multihead_attn(x,x,x,mask)
+        out = self.dropout(out)
+        out = self.layernorm(x + out)
+        return out
+
+
+class LayerNorm(nn.Module):
+    "Construct a layernorm module (See citation for details)."
+    def __init__(self, features, eps=1e-6):
+        super(LayerNorm, self).__init__()
+        self.gamma = nn.Parameter(torch.ones(features))
+        self.beta = nn.Parameter(torch.zeros(features))
+        self.eps = eps
+
+    def forward(self, x):
+        mean = x.mean(-1, keepdim=True)
+        std = x.std(-1, keepdim=True)
+        return self.beta * (x - mean) / (std + self.eps) + self.gamma
+
 
 def mask_local_mask(size, window_size=16):
     tmp = torch.ones(size, size).long()

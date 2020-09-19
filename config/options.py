@@ -36,6 +36,7 @@ def parse_args():
     p.add_argument('-lg_d', '--log_dir', type=str, default='./log/debug')
     p.add_argument('-bs', '--batch_size', type=int, default=20)
     p.add_argument('-ckpt', '--check_point', type=str, default='')
+    p.add_argument('-pt', '--pretrain', type=str, default='')
     p.add_argument('-ps', '--print_step', type=int, default=20)
     p.add_argument('-siu', '--save_interval_updates', type=int, default=100)
     # test (decoding)

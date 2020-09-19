@@ -1,6 +1,6 @@
 
 import torch
-import logging
+import logging, os
 from torch.utils.data import DataLoader
 import utils
 import torch.nn.functional as F
@@ -10,7 +10,7 @@ from metrics.wer import get_wer_delsubins
 import numpy as np
 import tensorflow as tf
 import ctcdecode
-
+from utils import neq_load_customized
 
 class Trainer(object):
     def __init__(self, opts, model, criterion, vocabulary, vocab_size, blank_id):
@@ -230,7 +230,7 @@ class Trainer(object):
             assert end == label.size(0)
         return err_delsubins, correct, count
 
-    def get_batch_iterator(self, datasets, batch_size, shuffle, num_workers=8, drop_last=True):
+    def get_batch_iterator(self, datasets, batch_size, shuffle, num_workers=32, drop_last=True):
         return DataLoader(datasets,
                           batch_size=batch_size,
                           shuffle=shuffle,
@@ -261,6 +261,24 @@ class Trainer(object):
         self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
         return epoch, num_updates, loss
 
+    def pretrain(self, args):
+        if os.path.isfile(args.pretrain):
+            print("=> loading pretrained checkpoint '{}'".format(args.pretrain))
+            checkpoint = torch.load(args.pretrain, map_location=torch.device('cpu'))
+            self.model = neq_load_customized(self.model, checkpoint['model_state_dict'])
+            print("=> loaded pretrained checkpoint '{}' (epoch {})"
+                  .format(args.pretrain, checkpoint['epoch']))
+        else:
+            print("=> no checkpoint found at '{}'".format(args.pretrain))
+
+    def cnn_freeze(self):
+        child_num = 0
+        for child in self.model.children():
+            child_num += 1
+            # print(child_num, child.parameters)
+            if child_num < 7:
+                for param in child.parameters():
+                    param.requires_grad = False
 
     def get_num_updates(self):
         """Get the number of parameters updates."""
