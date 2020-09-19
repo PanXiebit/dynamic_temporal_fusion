@@ -27,8 +27,8 @@ cat ${workdir}phoenix2014-groundtruth-$partition.stm | sort  -k1,1 > ${workdir}$
 mv ${workdir}$tmp_prefix.tmp2.ctm ${workdir}$tmp_prefix.tmp.out.${hypothesisCTM}
 
 #make sure NIST sclite toolbox is installed and on path. Available at ftp://jaguar.ncsl.nist.gov/pub/sctk-2.4.0-20091110-0958.tar.bz2
-/home/panxie/workspace/sign-lang/SCTK/bin/sclite  -h ${workdir}$tmp_prefix.tmp.out.$hypothesisCTM ctm -r ${workdir}$tmp_prefix.tmp.stm stm -f 0 -o sgml sum rsum pra
-/home/panxie/workspace/sign-lang/SCTK/bin/sclite  -h ${workdir}$tmp_prefix.tmp.out.$hypothesisCTM ctm -r ${workdir}$tmp_prefix.tmp.stm stm -f 0 -o dtl stdout |grep Error
+/home/dell/xp_workspace/SCTK/bin/sclite  -h ${workdir}$tmp_prefix.tmp.out.$hypothesisCTM ctm -r ${workdir}$tmp_prefix.tmp.stm stm -f 0 -o sgml sum rsum pra
+/home/dell/xp_workspace/SCTK/bin/sclite  -h ${workdir}$tmp_prefix.tmp.out.$hypothesisCTM ctm -r ${workdir}$tmp_prefix.tmp.stm stm -f 0 -o dtl stdout |grep Error
 
 #cat ${workdir}$tmp_prefix.tmp.out.${hypothesisCTM}.raw
 #cat ${workdir}$tmp_prefix.tmp.out.${hypothesisCTM}.sys

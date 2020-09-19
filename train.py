@@ -15,6 +15,8 @@ from tqdm import tqdm
 from src.data.vocabulary import Vocabulary
 import random
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+
 def setup_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
@@ -38,7 +40,7 @@ def main():
     logging.info(opts)
 
     train_datasets = PhoenixVideo(opts.vocab_file, opts.corpus_dir, opts.video_path, phase="train", DEBUG=opts.DEBUG)
-    valid_datasets = PhoenixVideo(opts.vocab_file, opts.corpus_dir, opts.video_path, phase="test", DEBUG=opts.DEBUG)
+    valid_datasets = PhoenixVideo(opts.vocab_file, opts.corpus_dir, opts.video_path, phase="dev", DEBUG=opts.DEBUG)
     vocab_size = valid_datasets.vocab.num_words
     blank_id = valid_datasets.vocab.word2index['<BLANK>']
     vocabulary = Vocabulary(opts.vocab_file)
@@ -132,7 +134,7 @@ def eval(opts, valid_datasets, trainer, epoch):
     result_file = os.path.join('evaluation_relaxation', txt_file)
     with open(result_file, 'w') as fid:
         fid.writelines(list_str_for_test)
-    phoenix_eval_err = get_phoenix_wer(txt_file, 'test', tmp_prefix)
+    phoenix_eval_err = get_phoenix_wer(txt_file, 'dev', tmp_prefix)
     logging.info('[Relaxation Evaluation] Epoch: {:d}, DEV WER: {:.5f}, SUB: {:.5f}, INS: {:.5f}, DEL: {:.5f}'.format(epoch,
         phoenix_eval_err[0], phoenix_eval_err[1], phoenix_eval_err[2], phoenix_eval_err[3]))
     return phoenix_eval_err
@@ -166,7 +168,7 @@ def eval_tf(opts, valid_datasets, trainer, epoch):
     result_file = os.path.join('evaluation_relaxation', txt_file)
     with open(result_file, 'w') as fid:
         fid.writelines(list_str_for_test)
-    phoenix_eval_err = get_phoenix_wer(txt_file, 'test', tmp_prefix)
+    phoenix_eval_err = get_phoenix_wer(txt_file, 'dev', tmp_prefix)
     logging.info('[Relaxation Evaluation] Epoch: {:d}, DEV WER: {:.5f}, SUB: {:.5f}, INS: {:.5f}, DEL: {:.5f}'.format(epoch,
         phoenix_eval_err[0], phoenix_eval_err[1], phoenix_eval_err[2], phoenix_eval_err[3]))
     return phoenix_eval_err

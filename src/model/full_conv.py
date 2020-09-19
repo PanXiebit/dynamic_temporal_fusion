@@ -4,7 +4,7 @@ Implementation of "Fully Convolutional Networks for Continuous Sign Language Rec
 
 import torch
 import torch.nn as nn
-
+from .local_attn import MultiHeadedAttention, mask_local_mask
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
@@ -53,6 +53,11 @@ class MainStream(nn.Module):
         self.layers = nn.Sequential(*layers)
 
         self.avgpool = nn.AdaptiveAvgPool2d(output_size=1)
+
+        # self-attention
+        self.num_layers = 1
+        self.attn_layers = nn.ModuleList([MultiHeadedAttention(h=8, d_model=512, dropout=0.1)
+                            for _ in range(self.num_layers)])
 
         # encoder G1, two F5-S1-P2-M2
         self.enc1_conv1 = nn.Conv1d(in_channels=512,
@@ -107,9 +112,15 @@ class MainStream(nn.Module):
         x = self.pool(x)
         x = self.layers(x)
         x = self.avgpool(x).squeeze_()  # [bs*t, 512]
+
         # x = x.reshape(bs, 512, -1)  # [bs, 512, t]
         x = x.reshape(bs, -1, 512)     # [bs, t ,512]
-        x = x.permute(0, 2, 1)    # [bs, 512, t]
+
+        mask = mask_local_mask(x.size(1), window_size=16).to(x.device)
+        for layer in self.attn_layers:
+            x = layer(x, x, x, mask=mask)
+        
+        x = x.permute(0, 2, 1)  # [bs, 512, t]
 
         x = self.enc1_conv1(x) # [bs, 512, t/2]
         x = self.enc1_bn1(x)
