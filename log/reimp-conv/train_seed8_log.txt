@@ -1,0 +1,23 @@
+09-19 16:10:50: Using GPU!
+09-19 16:10:50: Namespace(DEBUG=False, batch_size=2, beam_width=5, check_point='/home/panxie/workspace/sign-lang/unlikeli_ctc/log/reimp-conv/ep.pkl', corpus_dev='Data/slr-phoenix14/dev.corpus.csv', corpus_dir='Data/slr-phoenix14', corpus_test='Data/slr-phoenix14/test.corpus.csv', corpus_train='Data/slr-phoenix14/train.corpus.csv', data_worker=8, dropout=0.3, eval_set='test', feature_dim=512, gpu=0, learning_rate=0.0001, log_dir='./log/reimp-conv', max_epoch=1000, max_updates=10000000.0, momentum=0.9, optimizer='adam', print_step=100, save_interval_updates=100, seed=8, stage_epoch=100, task='train', update_param='all', update_step=1, valid_batch_size=1, video_path='/home/panxie/workspace/sign-lang/fullFrame-210x260px', vocab_file='Data/slr-phoenix14/newtrainingClasses.txt', weight_decay=0.0001)
+09-19 16:10:50: [DATASET: train]: total 5671 samples.
+09-19 16:10:50: [DATASET: test]: total 629 samples.
+09-19 16:10:52: | num. module params: 10173301 (num. trained: 10173301)
+09-19 16:10:52: No checkpoint file in found in /home/panxie/workspace/sign-lang/unlikeli_ctc/log/reimp-conv/ep.pkl
+09-19 16:11:08: Epoch: 1, num_updates: 100, loss: 0.000 -> 163.203
+09-19 16:11:24: Epoch: 1, num_updates: 200, loss: 163.203 -> 105.380
+09-19 16:11:39: Epoch: 1, num_updates: 300, loss: 105.380 -> 81.283
+09-19 16:11:54: Epoch: 1, num_updates: 400, loss: 81.283 -> 69.543
+09-19 16:12:09: Epoch: 1, num_updates: 500, loss: 69.543 -> 60.070
+09-19 16:12:25: Epoch: 1, num_updates: 600, loss: 60.070 -> 60.410
+09-19 16:12:40: Epoch: 1, num_updates: 700, loss: 60.410 -> 63.124
+09-19 16:12:55: Epoch: 1, num_updates: 800, loss: 63.124 -> 57.982
+09-19 16:13:10: Epoch: 1, num_updates: 900, loss: 57.982 -> 56.867
+09-19 16:13:25: Epoch: 1, num_updates: 1000, loss: 56.867 -> 58.292
+09-19 16:13:41: Epoch: 1, num_updates: 1100, loss: 58.292 -> 60.743
+09-19 16:13:56: Epoch: 1, num_updates: 1200, loss: 60.743 -> 59.223
+09-19 16:14:11: Epoch: 1, num_updates: 1300, loss: 59.223 -> 59.947
+09-19 16:14:27: Epoch: 1, num_updates: 1400, loss: 59.947 -> 57.379
+09-19 16:14:43: Epoch: 1, num_updates: 1500, loss: 57.379 -> 60.296
+09-19 16:14:58: Epoch: 1, num_updates: 1600, loss: 60.296 -> 57.678
+09-19 16:15:13: Epoch: 1, num_updates: 1700, loss: 57.678 -> 55.631
