@@ -32,19 +32,11 @@ class Trainer(object):
 
         self._num_updates = 0
 
-        # params = []
-        # for params in self.model.parameters():
-        #     if params not in self.model.decoder.parameters():
-        #         params.append(params)
-        params = list(filter(lambda p: p.requires_grad, self.model.parameters()))
-        self.optimizer = torch.optim.Adam(params, lr=self.opts.learning_rate,
+        pretrain_params, attn_params = self.cnn_freeze()
+        # params = list(filter(lambda p: p.requires_grad, self.model.parameters()))
+        self.optimizer = torch.optim.Adam([{"params": pretrain_params, "lr": self.opts.learning_rate},
+                                           {"params": attn_params, "lr": self.opts.learning_rate}],
                                           weight_decay=self.opts.weight_decay)
-
-
-        logging.info('| num. module params: {} (num. trained: {})'.format(
-            sum(p.numel() for p in params),
-            sum(p.numel() for p in params if p.requires_grad),
-        ))
 
         # self._build_optimizer(params, self.opts.optimizer, lr=self.opts.learning_rate,
         #                       momentum=self.opts.momentum, weight_decay=self.opts.weight_decay)
@@ -212,15 +204,6 @@ class Trainer(object):
                 end = start + length
                 ref = label[start:end].tolist()
                 hyp = [x for x in pred_seq[i] if x != 0]
-                # hyp = [x[0] for x in groupby(pred_seq[i][0][:out_seq_len[i][0]].tolist())]
-                # if i== 0:
-                #     if len(hyp) == 0:
-                #         logging.info("Here hyp is None!!!!")
-                #     logging.info("video id: {}".format(video_id[i]))
-                #     logging.info("ref: {}".format(" ".join(str(i) for i in ref)))
-                #     logging.info("hyp: {}".format(" ".join(str(i) for i in hyp)))
-                #
-                #     logging.info("\n")
                 decoded_dict[video_id[i]] = hyp
                 correct += int(ref == hyp)
                 err = get_wer_delsubins(ref, hyp)
@@ -230,7 +213,7 @@ class Trainer(object):
             assert end == label.size(0)
         return err_delsubins, correct, count
 
-    def get_batch_iterator(self, datasets, batch_size, shuffle, num_workers=32, drop_last=True):
+    def get_batch_iterator(self, datasets, batch_size, shuffle, num_workers=8, drop_last=True):
         return DataLoader(datasets,
                           batch_size=batch_size,
                           shuffle=shuffle,
@@ -273,12 +256,19 @@ class Trainer(object):
 
     def cnn_freeze(self):
         child_num = 0
+        pretrain_params = []
+        attn_params = []
         for child in self.model.children():
             child_num += 1
-            # print(child_num, child.parameters)
+            # print(child_num, child)
             if child_num < 7:
                 for param in child.parameters():
-                    param.requires_grad = False
+                    pretrain_params.append(param)
+            else:
+                print(child)
+                for param in child.parameters():
+                    attn_params.append(param)
+        return pretrain_params, attn_params
 
     def get_num_updates(self):
         """Get the number of parameters updates."""
@@ -308,13 +298,15 @@ class Trainer(object):
     def adjust_learning_rate(self, epoch):
         """Sets the learning rate to the initial LR decayed by 10 every 10 epochs"""
         if epoch >= 40:
-            lr = self.opts.learning_rate * 0.5
+            for param_group in self.optimizer.param_groups:
+                param_group['lr'] = param_group['lr'] * 0.5
         elif epoch >= 60:
-            lr = self.opts.learning_rate * 0.25
+            for param_group in self.optimizer.param_groups:
+                param_group['lr'] = param_group['lr'] * 0.25
         else:
-            lr = self.opts.learning_rate
-        for param_group in self.optimizer.param_groups:
-            param_group['lr'] = lr
+            for param_group in self.optimizer.param_groups:
+                logging.info("lr: {:.6f}".format(param_group["lr"]))
+
 
     def post_process_prediction(self, tensor):
         return [x.item() for x in tensor if x not in [self.pad, self.unk, self.bos, self.eos]]

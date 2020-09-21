@@ -5,7 +5,7 @@ from utils import init_logging, LossManager, ModelManager
 import os
 # from src.model.dilated_slr import DilatedSLRNet
 from src.criterion.ctc_loss import CtcLoss
-from src.model.full_conv_v1 import MainStream
+from src.model.full_conv_v5 import MainStream
 from src.trainer import Trainer
 import logging
 import numpy as np
@@ -15,7 +15,7 @@ from tqdm import tqdm
 from src.data.vocabulary import Vocabulary
 import random
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def setup_seed(seed):
     torch.manual_seed(seed)
@@ -57,12 +57,15 @@ def main():
     elif os.path.exists(opts.pretrain):
         logging.info("Loading checkpoint file from {}".format(opts.pretrain))
         trainer.pretrain(opts)
-        trainer.cnn_freeze()
         epoch, num_updates, loss = 0, 0, 0.0
     else:
         logging.info("No checkpoint file in found in {}".format(opts.check_point))
         epoch, num_updates, loss = 0, 0, 0.0
 
+    logging.info('| num. module params: {} (num. trained: {})'.format(
+        sum(p.numel() for p in model.parameters()),
+        sum(p.numel() for p in model.parameters() if p.requires_grad),
+    ))
 
     trainer.set_num_updates(num_updates)
     model_manager = ModelManager(max_num_models=5)
@@ -72,7 +75,7 @@ def main():
         loss = train(opts, train_datasets, valid_datasets, trainer, epoch, num_updates, loss)
 
         if epoch <= opts.stage_epoch:
-            # eval_train(opts, train_datasets, trainer, epoch)
+            eval_train(opts, train_datasets, trainer, epoch)
             # phoenix_eval_err = eval_tf(opts, valid_datasets, trainer, epoch)
             phoenix_eval_err = eval(opts, valid_datasets, trainer, epoch)
         else:

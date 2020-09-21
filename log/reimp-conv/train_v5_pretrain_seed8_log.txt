@@ -1,0 +1,8 @@
+09-21 09:20:35: Using GPU!
+09-21 09:20:35: Namespace(DEBUG=False, batch_size=2, beam_width=5, check_point='/home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/ep.pkl', corpus_dev='Data/slr-phoenix14/dev.corpus.csv', corpus_dir='Data/slr-phoenix14', corpus_test='Data/slr-phoenix14/test.corpus.csv', corpus_train='Data/slr-phoenix14/train.corpus.csv', data_worker=8, dropout=0.3, eval_set='test', feature_dim=512, gpu=0, learning_rate=0.0001, log_dir='./log/reimp-conv', max_epoch=100, max_updates=10000000.0, momentum=0.9, optimizer='adam', pretrain='/home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/pretrain/ep26_27.2000.pkl', print_step=100, save_interval_updates=100, seed=8, stage_epoch=100, task='train_v5_pretrain', update_param='all', update_step=1, valid_batch_size=1, video_path='/home/dell/xp_workspace/fullFrame-210x260px', vocab_file='Data/slr-phoenix14/newtrainingClasses.txt', weight_decay=0.0001)
+09-21 09:20:35: [DATASET: train]: total 5671 samples.
+09-21 09:20:35: [DATASET: dev]: total 540 samples.
+09-21 09:20:37: Loading checkpoint file from /home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/pretrain/ep26_27.2000.pkl
+09-21 09:20:38: | num. module params: 18037621 (num. trained: 18037621)
+09-21 09:20:38: lr: 0.000100
+09-21 09:20:38: lr: 0.000100

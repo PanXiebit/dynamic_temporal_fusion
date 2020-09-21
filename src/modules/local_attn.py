@@ -8,9 +8,9 @@ from torch.autograd import Variable
 import numpy as np
 
 class Encoder(nn.Module):
-    def __init__(self, num_layers, h, d_model, dropout):
+    def __init__(self, num_layers, h, d_model, window_size, dropout):
         super(Encoder, self).__init__()
-        self.enc_layers = nn.ModuleList([EncoderLayer(h, d_model, dropout)
+        self.enc_layers = nn.ModuleList([EncoderLayer(h, d_model, window_size, dropout)
                                           for _ in range(num_layers)])
     def forward(self, x, mask):
         for layer in self.enc_layers:
@@ -18,9 +18,9 @@ class Encoder(nn.Module):
         return x
 
 class EncoderLayer(nn.Module):
-    def __init__(self, h, d_model, dropout=0.1):
+    def __init__(self, h, d_model, window_size=16, dropout=0.1):
         super(EncoderLayer, self).__init__()
-        self.multihead_attn = MultiHeadedAttention(h, d_model, dropout)
+        self.multihead_attn = MultiHeadedAttention(h, d_model, window_size, dropout)
         self.layernorm = LayerNorm(d_model, eps=1e-6)
         self.dropout = nn.Dropout(dropout)
 
@@ -55,20 +55,18 @@ def clones(module, N):
     "Produce N identical layers."
     return nn.ModuleList([copy.deepcopy(module) for _ in range(N)])
 
-def attention(query, key, value, mask=None, dropout=None):
+def attention(query, key, value, window_size=16, mask=None, dropout=None):
     "Compute 'Scaled Dot Product Attention'"
     d_k = query.size(-1)
     scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
 
-    ids = scores.topk(k=16, dim=-1)[1]
+    ids = scores.topk(k=window_size, dim=-1)[1]
     dy_mask = torch.zeros(scores.shape, device=ids.device).scatter(-1, ids, 1).to(scores.device)
 
     #print("mask: ", mask[0, 0, 0, :])
     #print("dy_mask:", dy_mask[0 ,0 ,0, :])
     if mask is not None:
         comnine_mask = dy_mask.type_as(mask) & mask
-        #print("comnine_mask: ", comnine_mask[0, 0, 0, :])
-        #exit()
         scores = scores.masked_fill(comnine_mask == 0, -1e9)
 
     #if mask is not None:
@@ -80,13 +78,14 @@ def attention(query, key, value, mask=None, dropout=None):
 
 
 class MultiHeadedAttention(nn.Module):
-    def __init__(self, h, d_model, dropout=0.1):
+    def __init__(self, h, d_model, window_size=16, dropout=0.1):
         "Take in model size and number of heads."
         super(MultiHeadedAttention, self).__init__()
         assert d_model % h == 0
         # We assume d_v always equals d_k
         self.d_k = d_model // h
         self.h = h
+        self.window_size = window_size
         self.linears = clones(nn.Linear(d_model, d_model), 4)
         self.attn = None
         self.dropout = nn.Dropout(p=dropout)
@@ -111,7 +110,7 @@ class MultiHeadedAttention(nn.Module):
              for l, x in zip(self.linears, (query, key, value))]   # [batch, head, len, d_k]
 
         # 2) Apply attention on all the projected vectors in batch.
-        x, self.attn = attention(query, key, value, mask=mask,
+        x, self.attn = attention(query, key, value, window_size=self.window_size, mask=mask,
                                  dropout=self.dropout)
 
         # 3) "Concat" using a view and apply a final linear.

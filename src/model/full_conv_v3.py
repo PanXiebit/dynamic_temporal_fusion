@@ -4,7 +4,7 @@ Implementation of "Fully Convolutional Networks for Continuous Sign Language Rec
 
 import torch
 import torch.nn as nn
-from src.modules.local_attn import Encoder, LayerNorm, mask_local_mask
+from src.modules.local_attn import Encoder, mask_local_mask, LayerNorm
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
@@ -53,28 +53,39 @@ class MainStream(nn.Module):
         self.layers = nn.Sequential(*layers)
 
         self.avgpool = nn.AdaptiveAvgPool2d(output_size=1)
-        self.cnn_bn = nn.BatchNorm1d(512)
-        # self-attention
-        self.attn_enc = Encoder(num_layers=3, h=8, d_model=512, dropout=0.1)
 
         # encoder G1, two F5-S1-P2-M2
-        self.enc_conv1 = nn.Conv1d(in_channels=512,
+        self.enc1_conv1 = nn.Conv1d(in_channels=512,
                                     out_channels=512,
-                                    kernel_size=3,
+                                    kernel_size=5,
                                     stride=1,
-                                    padding=1)
-        self.enc_bn1 = nn.BatchNorm1d(512, affine=True)
-        self.enc_pool1 = nn.MaxPool1d(kernel_size=4, stride=4)
+                                    padding=2)
+        self.enc1_bn1 = nn.BatchNorm1d(512, affine=True)
+        self.enc1_pool1 = nn.MaxPool1d(kernel_size=2, stride=2)
 
-        self.enc_conv2 = nn.Conv1d(in_channels=512,
-                                    out_channels=1024,
-                                    kernel_size=1,
+        self.enc1_conv2 = nn.Conv1d(in_channels=512,
+                                    out_channels=512,
+                                    kernel_size=5,
                                     stride=1,
-                                    padding=0)
-        self.enc_bn2 = nn.BatchNorm1d(1024, affine=True)
-        self.enc = nn.Sequential(self.enc_conv1, self.enc_bn1, self.relu, self.enc_pool1,
-                                 self.enc_conv2, self.enc_bn2, self.relu)
+                                    padding=2)
+        self.enc1_bn2 = nn.BatchNorm1d(512, affine=True)
+        self.enc1_pool2 = nn.MaxPool1d(kernel_size=2, stride=2)
+        # self.enc1 = nn.Sequential(self.enc1_conv1, self.enc1_bn1, self.relu, self.enc1_pool1,
+        #                          self.enc1_conv2, self.enc1_bn2, self.relu, self.enc1_pool2)
 
+        self.window_size = 8
+        # self-attention
+        self.attn_enc = Encoder(num_layers=1, h=8, d_model=512, window_size=self.window_size, dropout=0.1)
+
+        # encoder G2, one F3-S1-P1
+        self.enc2_conv = nn.Conv1d(in_channels=512,
+                                   out_channels=1024,
+                                   kernel_size=3,
+                                   stride=1,
+                                   padding=1)
+        self.enc2_bn = nn.BatchNorm1d(1024, affine=True)
+        # self.enc2 = nn.Sequential(self.enc2_conv, self.enc2_bn, self.relu)
+        # self.act_tanh = nn.Tanh()
         self.fc = nn.Linear(1024, vocab_size)
 
         self.init()
@@ -112,17 +123,30 @@ class MainStream(nn.Module):
         x = self.pool(x)
         x = self.layers(x)
         x = self.avgpool(x).squeeze_()  # [bs*t, 512]
-        x = self.cnn_bn(x)
-        x = self.relu(x)
+
         # x = x.reshape(bs, 512, -1)  # [bs, 512, t]
         x = x.reshape(bs, -1, 512)     # [bs, t ,512]
 
-        mask = mask_local_mask(x.size(1), window_size=16).to(x.device)
-        x = self.attn_enc(x, mask)
-        
         x = x.permute(0, 2, 1)  # [bs, 512, t]
 
-        out = self.enc(x)  # [bs, 1024, t/4]
+        x = self.enc1_conv1(x) # [bs, 512, t/2]
+        x = self.enc1_bn1(x)
+        x = self.relu(x)
+        x = self.enc1_pool1(x)  # [bs, 512, t/2]
+
+        x = self.enc1_conv2(x)  # [bs, 512, t/2]
+        x = self.enc1_bn2(x)
+        x = self.relu(x)
+        x = self.enc1_pool2(x)  # [bs, 512, t/4]
+
+        x = x.permute(0, 2, 1)  # [bs, t/4, 512]
+        mask = mask_local_mask(x.size(1), window_size=self.window_size).to(x.device)
+        x = self.attn_enc(x, mask).permute(0, 2, 1)  # [bs, 512, t/4]
+
+        # enc2
+        x = self.enc2_conv(x)
+        x = self.enc2_bn(x)
+        out = self.relu(x)
 
         out = out.permute(0, 2, 1)
         logits = self.fc(out)  # [batch, t/4, vocab_size]
