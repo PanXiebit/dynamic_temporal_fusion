@@ -56,7 +56,6 @@ class TemporalAttention2(nn.Module):
 
     def forward(self, x):
         """
-
         :param x:  [batch, t, 512]
         :return:  [batch, t, window_size, 512]
         """
