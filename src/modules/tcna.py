@@ -65,9 +65,8 @@ class TemporalAttention2(nn.Module):
 
         scores = scores.masked_fill(local_mask == 0, -1e9)
         ids = scores.topk(k=self.window_size, dim=-1)[1].sort(-1)[0]  # [batch, t, k]
-        print(ids)
-        print(ids.shape)
-
+        # print(ids)
+        # print(ids.shape)
 
         out = []
         for i in range(x.size(0)):  # batch
@@ -79,10 +78,8 @@ class TemporalAttention2(nn.Module):
             out.append(batch_t)
         out = torch.cat(out, dim=0) # [bs, t, k, 512]
         out = out.permute(0, 3, 1, 2).contiguous()
-
         out = self.enc(out).squeeze()
 
-        # print("out", out.shape)
         return out
 
 
@@ -92,7 +89,9 @@ class TemporalAttention3(nn.Module):
         self.feat_dim = feat_dim
         self.window_size = window_size
         self.relu = nn.ReLU()
-        self.k_tcn = TemporalConvNet(512, [512, 512], kernel_size=3, dropout=dropout)
+        # self.k_tcn = TemporalConvNet(feat_dim, [feat_dim, feat_dim], kernel_size=3, dropout=dropout)
+        self.rnn = nn.GRU(feat_dim, feat_dim)
+        self.pool = nn.AdaptiveAvgPool1d(1)
 
     def forward(self, x):
         """
@@ -104,7 +103,9 @@ class TemporalAttention3(nn.Module):
         local_mask = mask_local_mask(size=x.size(1), local_ws=2 * self.window_size).to(x.device) # [batch, t, t]
 
         scores = scores.masked_fill(local_mask == 0, -1e9)
-        ids = scores.topk(k=self.window_size, dim=-1)[1].sort(-1)[0]  # [batch, t, k]
+        ids = scores.topk(k=self.window_size, dim=-1)[1].sort(-1)[0].detach_()  # require_grad=False, [batch, t, k]
+
+        # print(ids)
 
         feature = []
         for i in range(x.size(0)):  # batch
@@ -115,17 +116,28 @@ class TemporalAttention3(nn.Module):
             batch_t = torch.cat(batch_t, dim=0).unsqueeze(0)   # [1, t, k, 512]
             feature.append(batch_t)
         feature = torch.cat(feature, dim=0) # [bs, t, k, 512]
-        feature = feature.reshape(-1, self.window_size, self.feat_dim).permute(0, 2, 1).contiguous()  # [bs*t, 512, k]
+        feature = feature.reshape(-1, self.window_size, self.feat_dim)  # [bs*t, k, 512]
 
-        out = self.k_tcn(feature) # [bs*t, 512, k]
-        out = out[:, :, -1].squeeze().reshape(x.size(0), -1, self.feat_dim)  # [batch, t, 512]
+        # tcn
+        # feature = feature.permute(0, 2, 1).contiguous()  # [bs*t, 512, k]
+        # out = self.k_tcn(feature) # [bs*t, 512, k]
 
+        # rnn
+        feature = feature.permute(1,0,2).contiguous()  # [k, bs*t, 512]
+        _, out = self.rnn(feature)  # [1, bs*t, 512]
+        # print(out.shape)
+
+        out = out.squeeze().reshape(x.size(0), x.size(1), -1)  # [batch, t, 512]
+        del feature
+
+        # residual connection
+        out += x
         return out
 
 
 if __name__ == "__main__":
     import os
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     x = torch.randn(2, 152, 512).cuda()
     model = TemporalAttention3(512, 12).to("cuda")
     out = model(x)

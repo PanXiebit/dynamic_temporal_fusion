@@ -68,7 +68,7 @@ def main():
     ))
 
     trainer.set_num_updates(num_updates)
-    model_manager = ModelManager(max_num_models=5)
+    model_manager = ModelManager(max_num_models=25)
     while epoch < opts.max_epoch and trainer.get_num_updates() < opts.max_updates:
         epoch += 1
         trainer.adjust_learning_rate(epoch)

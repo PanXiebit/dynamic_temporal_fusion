@@ -32,6 +32,7 @@ def parse_args():
     p.add_argument('-upm', '--update_param', type=str, default='all')
 
     # train
+    p.add_argument('-rl', '--reset_lr', type=bool, default=False)
     p.add_argument('-db', '--DEBUG', type=bool, default=False)
     p.add_argument('-lg_d', '--log_dir', type=str, default='./log/debug')
     p.add_argument('-bs', '--batch_size', type=int, default=20)
@@ -39,6 +40,10 @@ def parse_args():
     p.add_argument('-pt', '--pretrain', type=str, default='')
     p.add_argument('-ps', '--print_step', type=int, default=20)
     p.add_argument('-siu', '--save_interval_updates', type=int, default=100)
+    p.add_argument('-frc', '--freeze_cnn', type=bool, default=False)
+    p.add_argument('-olbc', '--only_load_backbone', type=bool, default=False)
+    p.add_argument('-clip', '--clip', type=float, default=5.0)
+
     # test (decoding)
     p.add_argument('-bwd', '--beam_width', type=int, default=5)
     p.add_argument('-vbs', '--valid_batch_size', type=int, default=1)

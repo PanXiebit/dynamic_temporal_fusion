@@ -32,11 +32,16 @@ class Trainer(object):
 
         self._num_updates = 0
 
-        pretrain_params, attn_params = self.cnn_freeze()
+        pretrain_params, attn_params = self.cnn_freeze(opts)
         # params = list(filter(lambda p: p.requires_grad, self.model.parameters()))
-        self.optimizer = torch.optim.Adam([{"params": pretrain_params, "lr": self.opts.learning_rate},
-                                           {"params": attn_params, "lr": self.opts.learning_rate}],
-                                          weight_decay=self.opts.weight_decay)
+        if not opts.freeze_cnn:
+            self.optimizer = torch.optim.Adam([{"params": pretrain_params, "lr": self.opts.learning_rate},
+                                               {"params": attn_params, "lr": self.opts.learning_rate}],
+                                              weight_decay=self.opts.weight_decay)
+        else:
+            self.optimizer = torch.optim.Adam([{"params": pretrain_params, "lr": 0.0},
+                                               {"params": attn_params, "lr": self.opts.learning_rate}],
+                                              weight_decay=self.opts.weight_decay)
 
         # self._build_optimizer(params, self.opts.optimizer, lr=self.opts.learning_rate,
         #                       momentum=self.opts.momentum, weight_decay=self.opts.weight_decay)
@@ -55,6 +60,8 @@ class Trainer(object):
         samples = self._prepare_sample(samples)
         loss = self.criterion(self.model, samples)
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.opts.clip)
+
         self.set_num_updates(self.get_num_updates() + 1)
         self.optimizer.step()
         return loss, self.get_num_updates()
@@ -240,21 +247,27 @@ class Trainer(object):
         num_updates = state_dict["num_updates"]
         loss = state_dict["loss"]
         self.model.load_state_dict(state_dict["model_state_dict"])
-        self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
-        self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
+        if not self.opts.reset_lr:
+            self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
+        else:
+            old_lr = []
+            for param_group in state_dict["optimizer_state_dict"]["param_groups"]:
+                old_lr.append(param_group["lr"])
+            print('==== Change lr from %s to %f ====' % (" ".join([str(lr) for lr in old_lr]),
+                                                         self.opts.learning_rate))
         return epoch, num_updates, loss
 
     def pretrain(self, args):
         if os.path.isfile(args.pretrain):
             print("=> loading pretrained checkpoint '{}'".format(args.pretrain))
             checkpoint = torch.load(args.pretrain, map_location=torch.device('cpu'))
-            self.model = neq_load_customized(self.model, checkpoint['model_state_dict'])
+            self.model = neq_load_customized(self.model, checkpoint['model_state_dict'], args.only_load_backbone)
             print("=> loaded pretrained checkpoint '{}' (epoch {})"
                   .format(args.pretrain, checkpoint['epoch']))
         else:
             print("=> no checkpoint found at '{}'".format(args.pretrain))
 
-    def cnn_freeze(self):
+    def cnn_freeze(self, opts):
         child_num = 0
         pretrain_params = []
         attn_params = []
@@ -263,9 +276,12 @@ class Trainer(object):
             # print(child_num, child)
             if child_num < 7:
                 for param in child.parameters():
+                    # print("Freezed params: ", child)
                     pretrain_params.append(param)
+                    if opts.freeze_cnn:
+                        param.require_grad = False
             else:
-                print(child)
+                # print(child)
                 for param in child.parameters():
                     attn_params.append(param)
         return pretrain_params, attn_params

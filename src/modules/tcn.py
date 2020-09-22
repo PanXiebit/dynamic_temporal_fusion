@@ -75,12 +75,12 @@ if __name__ == "__main__":
     setup_seed(8)
     x = torch.zeros(5, 512, 12)
 
-    model = TemporalConvNet(512, [512, 512], kernel_size=3)
+    model = TemporalConvNet(512, [512, 1024], kernel_size=3)
     print(model)
     x[0, :, 1] = 1
     out1 = model(x)
     print(out1[0, :, -1])
-
+    print(out1.shape)
 
 
     # conv1 = nn.Conv1d(512, 512, kernel_size=3, stride=1, padding=2)

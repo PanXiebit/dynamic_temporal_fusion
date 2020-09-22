@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 
-def neq_load_customized(model, pretrained_dict):
+def neq_load_customized(model, pretrained_dict, only_load_backbone=False):
     ''' load pre-trained model in a not-equal way,
     when new model has been partially modified '''
     model_dict = model.state_dict()
@@ -16,14 +16,20 @@ def neq_load_customized(model, pretrained_dict):
     print('Weights not used from pretrained file:')
     for k, v in pretrained_dict.items():
         if k in model_dict:
-            tmp[k] = v
+            if only_load_backbone:
+                if "enc1" not in k and "enc2" not in k and "fc" not in k:
+                    tmp[k] = v
+                else:
+                    print("In model_dict, but not in backbone module: ", k)
+            else:
+                tmp[k] = v
         else:
-            print(k)
+            print("In pretrained model, but not in model_dict: ", k)
     print('---------------------------')
     print('Weights not loaded into new model:')
     for k, v in model_dict.items():
-        if k not in pretrained_dict:
-            print(k)
+        if k not in tmp.keys():
+            print("In model_dict, but not in pretrained model: ", k)
     print('===================================\n')
     # pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
     del pretrained_dict
