@@ -61,6 +61,13 @@ len_video的计算有问题。。。改进之后总算能得到不错的效果�
 |best wer|epoch: 25, 36.2. Abanbon!|
 |pretrain| **from scratch** |
 
+|model|full_model_v5, with residual connection, **len_video**|
+|---|---|
+|module|full_conv + dynamic framing + rnn|
+|log file|train_v5_video_len_seed8_log.txt|
+|best wer|epoch: 59, 26.3|
+|pretrain| **from scratch** |
+
 ### dynamic framing + rnn + random sample
 |model| full_conv_v6, random sample after framing|
 |---|---|
