@@ -316,12 +316,14 @@ class Trainer(object):
     
     def adjust_learning_rate(self, epoch):
         """Sets the learning rate to the initial LR decayed by 10 every 10 epochs"""
-        if epoch >= 40:
+        if epoch == 40:
             for param_group in self.optimizer.param_groups:
                 param_group['lr'] = param_group['lr'] * 0.5
-        elif epoch >= 60:
+                logging.info("lr: {:.6f}".format(param_group["lr"]))
+        elif epoch == 60:
             for param_group in self.optimizer.param_groups:
                 param_group['lr'] = param_group['lr'] * 0.5
+                logging.info("lr: {:.6f}".format(param_group["lr"]))
         else:
             for param_group in self.optimizer.param_groups:
                 logging.info("lr: {:.6f}".format(param_group["lr"]))
