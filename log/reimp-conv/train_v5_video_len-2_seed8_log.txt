@@ -1,0 +1,58 @@
+09-24 08:54:28: Using GPU!
+09-24 08:54:28: Namespace(DEBUG=False, batch_size=2, beam_width=5, check_point='/home/panxie/workspace/sign-lang/dynamic_attn/log/reimp-conv/ep19_31.5.pkl', clip=5.0, corpus_dev='Data/slr-phoenix14/dev.corpus.csv', corpus_dir='Data/slr-phoenix14', corpus_test='Data/slr-phoenix14/test.corpus.csv', corpus_train='Data/slr-phoenix14/train.corpus.csv', data_worker=8, dropout=0.3, eval_set='test', feature_dim=512, freeze_cnn=False, gpu=0, learning_rate=3e-05, log_dir='./log/reimp-conv', max_epoch=100, max_updates=10000000.0, momentum=0.9, only_load_backbone=False, optimizer='adam', pretrain='/home/panxie/workspace/sign-lang/dynamic_attn/log/reimp-conv/pretrain/ep.pkl', print_step=100, reset_lr=True, save_interval_updates=100, seed=8, stage_epoch=100, task='train_v5_video_len-2', update_param='all', update_step=1, valid_batch_size=1, video_path='/home/panxie/workspace/sign-lang/fullFrame-210x260px', vocab_file='Data/slr-phoenix14/newtrainingClasses.txt', weight_decay=0.0001)
+09-24 08:54:28: [DATASET: train]: total 5671 samples.
+09-24 08:54:28: [DATASET: dev]: total 540 samples.
+09-24 08:54:29: Loading checkpoint file from /home/panxie/workspace/sign-lang/dynamic_attn/log/reimp-conv/ep19_31.5.pkl
+09-24 08:54:29: | num. module params: 11749237 (num. trained: 11749237)
+09-24 08:54:29: lr: 0.000030
+09-24 08:54:29: lr: 0.000030
+09-24 08:54:48: Epoch: 20, num_updates: 100, loss: 11.473 -> 11.129
+09-24 08:55:06: Epoch: 20, num_updates: 200, loss: 11.129 -> 10.086
+09-24 08:55:23: Epoch: 20, num_updates: 300, loss: 10.086 -> 8.480
+09-24 08:55:41: Epoch: 20, num_updates: 400, loss: 8.480 -> 8.666
+09-24 08:55:58: Epoch: 20, num_updates: 500, loss: 8.666 -> 9.888
+09-24 08:56:15: Epoch: 20, num_updates: 600, loss: 9.888 -> 8.926
+09-24 08:56:33: Epoch: 20, num_updates: 700, loss: 8.926 -> 9.191
+09-24 08:56:50: Epoch: 20, num_updates: 800, loss: 9.191 -> 7.512
+09-24 08:57:08: Epoch: 20, num_updates: 900, loss: 7.512 -> 9.660
+09-24 08:57:26: Epoch: 20, num_updates: 1000, loss: 9.660 -> 9.182
+09-24 08:57:43: Epoch: 20, num_updates: 1100, loss: 9.182 -> 9.495
+09-24 08:58:01: Epoch: 20, num_updates: 1200, loss: 9.495 -> 9.133
+09-24 08:58:18: Epoch: 20, num_updates: 1300, loss: 9.133 -> 8.897
+09-24 08:58:36: Epoch: 20, num_updates: 1400, loss: 8.897 -> 8.624
+09-24 08:58:54: Epoch: 20, num_updates: 1500, loss: 8.624 -> 9.002
+09-24 08:59:12: Epoch: 20, num_updates: 1600, loss: 9.002 -> 8.199
+09-24 08:59:30: Epoch: 20, num_updates: 1700, loss: 8.199 -> 9.283
+09-24 08:59:47: Epoch: 20, num_updates: 1800, loss: 9.283 -> 9.460
+09-24 09:00:05: Epoch: 20, num_updates: 1900, loss: 9.460 -> 8.164
+09-24 09:00:23: Epoch: 20, num_updates: 2000, loss: 8.164 -> 8.938
+09-24 09:00:41: Epoch: 20, num_updates: 2100, loss: 8.938 -> 8.612
+09-24 09:00:59: Epoch: 20, num_updates: 2200, loss: 8.612 -> 8.081
+09-24 09:01:16: Epoch: 20, num_updates: 2300, loss: 8.081 -> 9.334
+09-24 09:01:34: Epoch: 20, num_updates: 2400, loss: 9.334 -> 8.549
+09-24 09:01:52: Epoch: 20, num_updates: 2500, loss: 8.549 -> 8.264
+09-24 09:02:10: Epoch: 20, num_updates: 2600, loss: 8.264 -> 8.536
+09-24 09:02:27: Epoch: 20, num_updates: 2700, loss: 8.536 -> 8.249
+09-24 09:02:44: Epoch: 20, num_updates: 2800, loss: 8.249 -> 8.236
+09-24 09:02:50: --------------------- ctc training ------------------------
+09-24 09:02:50: Epoch: 20, ctc loss: 11.473 -> 8.911
+09-24 09:03:40: --------------------------------------------------
+09-24 09:03:40: Epoch: 20, Train ACC: 0.18463, 185/1002
+09-24 09:03:40: Epoch: 20, Train WER: 0.19415, SUB: 0.06588, INS: 0.00975, DEL: 0.11853
+09-24 09:04:10: --------------------------------------------------
+09-24 09:04:10: Epoch: 20, DEV ACC: 0.06481, 35/540
+09-24 09:04:10: Epoch: 20, DEV WER: 0.33693, SUB: 0.22584, INS: 0.03466, DEL: 0.07643
+09-24 09:04:10: [Relaxation Evaluation] Epoch: 20, DEV WER: 27.90000, SUB: 14.70000, INS: 3.50000, DEL: 9.70000
+09-24 09:04:10: CURRENT BEST PERFORMANCE (epoch: 20): WER: 27.90000, SUB: 14.70000, INS: 3.50000, DEL: 9.70000
+09-24 09:04:10: lr: 0.000030
+09-24 09:04:10: lr: 0.000030
+09-24 09:04:23: Epoch: 21, num_updates: 2900, loss: 8.911 -> 7.979
+09-24 09:04:41: Epoch: 21, num_updates: 3000, loss: 7.979 -> 7.213
+09-24 09:04:58: Epoch: 21, num_updates: 3100, loss: 7.213 -> 6.878
+09-24 09:05:17: Epoch: 21, num_updates: 3200, loss: 6.878 -> 8.253
+09-24 09:05:34: Epoch: 21, num_updates: 3300, loss: 8.253 -> 7.946
+09-24 09:05:52: Epoch: 21, num_updates: 3400, loss: 7.946 -> 8.133
+09-24 09:06:10: Epoch: 21, num_updates: 3500, loss: 8.133 -> 8.614
+09-24 09:06:27: Epoch: 21, num_updates: 3600, loss: 8.614 -> 7.481
+09-24 09:06:45: Epoch: 21, num_updates: 3700, loss: 7.481 -> 8.559
+09-24 09:07:03: Epoch: 21, num_updates: 3800, loss: 8.559 -> 7.938

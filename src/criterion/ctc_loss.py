@@ -19,7 +19,8 @@ class CtcLoss(_Loss):
         len_video = samples["len_data"]
         label = samples["label"]            # "(sum(target_lengths))"
         len_label = samples["len_label"]
-        logits, len_video = model(video, len_video)
+        logits, _ = model(video, len_video)
+        len_video /= 4
         logits = logits.permute(1, 0, 2)
         log_probs = logits.log_softmax(-1)   # T x N x C
         loss = self.ctcloss(log_probs.cpu(), label.cpu(), len_video.cpu(), len_label.cpu())

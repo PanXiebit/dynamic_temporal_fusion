@@ -115,7 +115,8 @@ class Trainer(object):
             len_label = samples["len_label"]
             video_id = samples['id']
 
-            logits, len_video = self.model(video, len_video)
+            logits, _ = self.model(video, len_video)
+            len_video /= 4
             logits = F.softmax(logits, dim=-1)
             pred_seq, _, _, out_seq_len = self.decoder.decode(logits, len_video)
 
@@ -149,7 +150,8 @@ class Trainer(object):
             len_label = samples["len_label"]
             video_id = samples['id']
 
-            logits, len_video = self.model(video, len_video)
+            logits, _ = self.model(video, len_video)
+            len_video /= 4
             logits = F.softmax(logits, dim=-1)
             # pred_seq, _, _, out_seq_len = self.decoder.decode(logits, len_video)
             pred_seq = logits.argmax(-1)
@@ -193,7 +195,8 @@ class Trainer(object):
             len_label = samples["len_label"]
             video_id = samples['id']
 
-            logits, len_video = self.model(video, len_video)
+            logits, _ = self.model(video, len_video)
+            len_video /= 4
             logits = F.softmax(logits, dim=-1)
             # pred_seq, _, _, out_seq_len = self.decoder.decode(logits, len_video)
 
@@ -318,7 +321,7 @@ class Trainer(object):
                 param_group['lr'] = param_group['lr'] * 0.5
         elif epoch >= 60:
             for param_group in self.optimizer.param_groups:
-                param_group['lr'] = param_group['lr'] * 0.25
+                param_group['lr'] = param_group['lr'] * 0.5
         else:
             for param_group in self.optimizer.param_groups:
                 logging.info("lr: {:.6f}".format(param_group["lr"]))

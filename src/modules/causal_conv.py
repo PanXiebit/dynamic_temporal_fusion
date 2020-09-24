@@ -32,13 +32,13 @@ class TemporalBlock(nn.Module):
         super(TemporalBlock, self).__init__()
         self.conv1 = CasualConv1D(n_inputs, n_outputs, kernel_size, stride, dilation)
         # TODO? the mean and variance is computed only on the last dimension.
-        self.norm_layer1 = nn.LayerNorm([n_outputs], elementwise_affine=True)
+        self.norm_layer1 = nn.BatchNorm1d(n_outputs, affine=True)
         self.dropout1 = nn.Dropout(dropout)
         self.relu1 = nn.ReLU()
 
         self.conv2 = CasualConv1D(n_outputs, n_outputs, kernel_size, stride, dilation)
         # TODO?
-        self.norm_layer2 = nn.LayerNorm([n_outputs], elementwise_affine=True)
+        self.norm_layer2 = nn.BatchNorm1d(n_outputs, affine=True)
         self.dropout2 = nn.Dropout(dropout)
         self.relu2 = nn.ReLU()
 
@@ -63,12 +63,12 @@ class TemporalBlock(nn.Module):
         :return: [bs, channel ,t]
         """
         res = x
-        x = self.conv1(x).permute(0, 2, 1).contiguous()  # [bs, t, channel]
-        x = self.norm_layer1(x).permute(0, 2, 1).contiguous() # [bs, channel, t]
+        x = self.conv1(x)   # [bs, channel, t]
+        x = self.norm_layer1(x)  # [bs, channel, t]
         x = self.dropout1(x)
         x = self.relu1(x)
-        x = self.conv2(x).permute(0, 2, 1).contiguous()
-        x = self.norm_layer2(x).permute(0, 2, 1).contiguous()
+        x = self.conv2(x)
+        x = self.norm_layer2(x)
         x = self.dropout2(x)
         x = self.relu2(x)
         if self.downsample is not None:

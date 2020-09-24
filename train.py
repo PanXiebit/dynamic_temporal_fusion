@@ -75,7 +75,7 @@ def main():
         loss = train(opts, train_datasets, valid_datasets, trainer, epoch, num_updates, loss)
 
         if epoch <= opts.stage_epoch:
-            eval_train(opts, train_datasets, trainer, epoch)
+            # eval_train(opts, train_datasets, trainer, epoch)
             # phoenix_eval_err = eval_tf(opts, valid_datasets, trainer, epoch)
             phoenix_eval_err = eval(opts, valid_datasets, trainer, epoch)
         else:

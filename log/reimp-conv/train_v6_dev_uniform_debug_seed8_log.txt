@@ -1,0 +1,10 @@
+09-22 18:55:25: Using GPU!
+09-22 18:55:25: Namespace(DEBUG=True, batch_size=2, beam_width=5, check_point='/home/panxie/workspace/sign-lang/dynamic_attn/log/reimp-conv/ep.pkl', clip=5.0, corpus_dev='Data/slr-phoenix14/dev.corpus.csv', corpus_dir='Data/slr-phoenix14', corpus_test='Data/slr-phoenix14/test.corpus.csv', corpus_train='Data/slr-phoenix14/train.corpus.csv', data_worker=8, dropout=0.3, eval_set='test', feature_dim=512, freeze_cnn=False, gpu=0, learning_rate=0.0001, log_dir='./log/reimp-conv', max_epoch=100, max_updates=10000000.0, momentum=0.9, only_load_backbone=False, optimizer='adam', pretrain='/home/panxie/workspace/sign-lang/dynamic_attn/log/reimp-conv/pretrain/ep.pkl', print_step=100, reset_lr=True, save_interval_updates=100, seed=8, stage_epoch=100, task='train_v6_dev_uniform_debug', update_param='all', update_step=1, valid_batch_size=1, video_path='/home/panxie/workspace/sign-lang/fullFrame-210x260px', vocab_file='Data/slr-phoenix14/newtrainingClasses.txt', weight_decay=0.0001)
+09-22 18:55:25: [DATASET: train]: total 101 samples.
+09-22 18:55:25: [DATASET: dev]: total 101 samples.
+09-22 18:55:27: No checkpoint file in found in /home/panxie/workspace/sign-lang/dynamic_attn/log/reimp-conv/ep.pkl
+09-22 18:55:27: | num. module params: 10436981 (num. trained: 10436981)
+09-22 18:55:27: lr: 0.000100
+09-22 18:55:27: lr: 0.000100
+09-22 18:55:37: --------------------- ctc training ------------------------
+09-22 18:55:37: Epoch: 1, ctc loss: 0.000 -> 199.155

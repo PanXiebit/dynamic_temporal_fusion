@@ -5,7 +5,9 @@ import torch.nn.functional as F
 import math, copy, time
 from torch.autograd import Variable
 import numpy as np
-from .tcn import TemporalConvNet
+# from .tcn import TemporalConvNet
+import random
+from collections import defaultdict
 
 
 def mask_local_mask(size, local_ws=16):
@@ -134,12 +136,142 @@ class TemporalAttention3(nn.Module):
         return out
 
 
+class TemporalAttention4(nn.Module):
+    def __init__(self, feat_dim=512, window_size=12, dropout=0.2):
+        super(TemporalAttention4, self).__init__()
+        self.feat_dim = feat_dim
+        self.window_size = window_size
+        self.relu = nn.ReLU()
+        # self.k_tcn = TemporalConvNet(feat_dim, [feat_dim, feat_dim], kernel_size=3, dropout=dropout)
+        self.rnn = nn.GRU(feat_dim, feat_dim)
+        self.pool = nn.AdaptiveAvgPool1d(1)
+
+    def forward(self, x):
+        """
+
+        :param x:  [batch, t, 512]
+        :return:  [batch, t, window_size, 512]
+        """
+
+        scores = torch.matmul(x, x.transpose(-2, -1)) / math.sqrt(self.feat_dim)  # [batch, t, t]
+        local_mask = mask_local_mask(size=x.size(1), local_ws=2 * self.window_size).to(x.device) # [batch, t, t]
+
+        scores = scores.masked_fill(local_mask == 0, -1e9)
+        ids = scores.topk(k=self.window_size, dim=-1)[1].sort(-1)[0].detach_()  # require_grad=False, [batch, t, k]
+
+        # temporal_ids = random.sample(range(x.size(1)), int(x.size(1) / 4))
+        # temporal_ids.sort()
+
+        if self.training:
+            temporal_ids = random.sample(range(x.size(1)), int(x.size(1) / 4))
+            temporal_ids.sort()
+            # print("train: ", temporal_ids)
+        else:
+            temporal_ids = [int(id) for id in np.linspace(0, x.size(1)-1, int(x.size(1)/4))]
+            temporal_ids.sort()
+            # print("test: ", temporal_ids)
+
+
+        feature = []
+        for i in range(x.size(0)):  # batch
+            batch_t = []
+            for j in temporal_ids:  # t
+                t = x[i].index_select(0, ids[i, j, :]).unsqueeze(0)  # [1, k, 512]
+                batch_t.append(t)
+            batch_t = torch.cat(batch_t, dim=0).unsqueeze(0)   # [1, t/4, k, 512]
+            feature.append(batch_t)
+        feature = torch.cat(feature, dim=0) # [bs, t/4, k, 512]
+        feature = feature.reshape(-1, self.window_size, self.feat_dim)  # [bs*t/4, k, 512]
+
+        # rnn
+        feature = feature.permute(1,0,2).contiguous()  # [k, bs*t/4, 512]
+        _, out = self.rnn(feature)  # [1, bs*t/4, 512]
+
+
+        out = out.squeeze().reshape(x.size(0), len(temporal_ids), -1)  # [batch, t/4, 512]
+        del feature
+
+        # residual connection
+        # temporal_ids_2 = [int(id) for id in np.linspace(0, x.size(1)-1, len(temporal_ids))]
+        # temporal_ids_2.sort()
+        # sampled_x = x[:, temporal_ids_2, :]
+        #
+        # out += sampled_x
+        return out
+
+
+class TemporalAttention5(nn.Module):
+    def __init__(self, feat_dim=512, window_size=12, dropout=0.2):
+        super(TemporalAttention5, self).__init__()
+        self.feat_dim = feat_dim
+        self.window_size = window_size
+        self.relu = nn.ReLU()
+        # self.k_tcn = TemporalConvNet(feat_dim, [feat_dim, feat_dim], kernel_size=3, dropout=dropout)
+        self.rnn = nn.GRU(feat_dim, feat_dim)
+        self.pool = nn.AdaptiveAvgPool1d(1)
+
+    def forward(self, x):
+        """
+
+        :param x:  [batch, t, 512]
+        :return:  [batch, t, window_size, 512]
+        """
+
+        scores = torch.matmul(x, x.transpose(-2, -1)) / math.sqrt(self.feat_dim)  # [batch, t, t]
+        local_mask = mask_local_mask(size=x.size(1), local_ws=2 * self.window_size).to(x.device) # [batch, t, t]
+
+        scores = scores.masked_fill(local_mask == 0, -1e9)
+        ids = scores.topk(k=self.window_size, dim=-1)[1].sort(-1)[0].detach_()  # require_grad=False, [batch, t, k]
+
+        features = []
+        feature_len = []
+        # print("origin size: ", x.size(1))
+        for i in range(x.size(0)):  # batch
+            batch_ids = ids[i, :, :]  # [t, k]
+            batch_t = []
+            id_map = defaultdict(int)
+
+            for j in range(x.size(1)):  #  t
+                key = (torch.mean(batch_ids[j].float()).cpu().numpy().tolist(),
+                       torch.std(batch_ids[j].float()).cpu().numpy().tolist())
+                if key not in id_map:  # batch_ids[j]: [k]
+                    id_map[key] = j
+                    t = x[i].index_select(0, ids[i, j, :]).unsqueeze(0) # [1, k, 512]
+                    batch_t.append(t)      # <= t
+            feature_len.append(len(batch_t))
+            batch_t = torch.cat(batch_t, dim=0).unsqueeze(0)  # [1, <=t, k, 512]
+            features.append(batch_t)              # the length of batch_t is different.
+        max_len = max(feature_len)
+        new_feature = torch.zeros(x.size(0), max_len, self.window_size, self.feat_dim).to(x.device)  # [batch, max_len, k, 512]
+        for i in range(x.size(0)):
+            new_feature[i, :feature_len[i], :, :] = features[i]
+        # print("after fusion, size: ", max_len)
+
+
+        # rnn
+        new_feature = new_feature.reshape(-1, self.window_size, self.feat_dim)  # [bs*t/4, k, 512]
+        new_feature = new_feature.permute(1,0,2).contiguous()  # [k, bs*max_len, 512]
+        _, out = self.rnn(new_feature)  # [1, bs*t/4, 512]
+
+
+        out = out.squeeze().reshape(x.size(0), max_len, -1)  # [batch, max_len, 512]
+        del features
+
+        # residual connection
+        # temporal_ids_2 = [int(id) for id in np.linspace(0, x.size(1)-1, max_len)]
+        # temporal_ids_2.sort()
+        # sampled_x = x[:, temporal_ids_2, :]
+        #
+        # out += sampled_x
+        return out, torch.LongTensor(feature_len).to(x.device)
+
+
 if __name__ == "__main__":
     import os
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     x = torch.randn(2, 152, 512).cuda()
-    model = TemporalAttention3(512, 12).to("cuda")
-    out = model(x)
-    print(out.shape)
+    model = TemporalAttention5(512, 12).cuda()
+    out, leng = model(x)
+    print(out.shape, leng)
     # a = x.index_select(0, torch.LongTensor([1,2]))
     # print(a.shape)

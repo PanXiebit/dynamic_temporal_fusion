@@ -1,0 +1,48 @@
+09-23 14:10:49: Using GPU!
+09-23 14:10:49: Namespace(DEBUG=False, batch_size=2, beam_width=5, check_point='/home/panxie/workspace/sign-lang/dynamic_attn/log/reimp-conv/ep.pkl', clip=5.0, corpus_dev='Data/slr-phoenix14/dev.corpus.csv', corpus_dir='Data/slr-phoenix14', corpus_test='Data/slr-phoenix14/test.corpus.csv', corpus_train='Data/slr-phoenix14/train.corpus.csv', data_worker=8, dropout=0.3, eval_set='test', feature_dim=512, freeze_cnn=False, gpu=0, learning_rate=0.0001, log_dir='./log/reimp-conv', max_epoch=100, max_updates=10000000.0, momentum=0.9, only_load_backbone=True, optimizer='adam', pretrain='/home/panxie/workspace/sign-lang/dynamic_attn/log/reimp-conv/pretrain/ep26_27.2000.pkl', print_step=100, reset_lr=True, save_interval_updates=100, seed=8, stage_epoch=100, task='train_v8_debug', update_param='all', update_step=1, valid_batch_size=1, video_path='/home/panxie/workspace/sign-lang/fullFrame-210x260px', vocab_file='Data/slr-phoenix14/newtrainingClasses.txt', weight_decay=0.0001)
+09-23 14:10:49: [DATASET: train]: total 5671 samples.
+09-23 14:10:49: [DATASET: dev]: total 540 samples.
+09-23 14:10:51: Loading checkpoint file from /home/panxie/workspace/sign-lang/dynamic_attn/log/reimp-conv/pretrain/ep26_27.2000.pkl
+09-23 14:10:51: | num. module params: 10700661 (num. trained: 10700661)
+09-23 14:10:51: lr: 0.000100
+09-23 14:10:51: lr: 0.000100
+09-23 14:11:13: Epoch: 1, num_updates: 100, loss: 0.000 -> 513.860
+09-23 14:11:35: Epoch: 1, num_updates: 200, loss: 513.860 -> 222.409
+09-23 14:11:56: Epoch: 1, num_updates: 300, loss: 222.409 -> 151.717
+09-23 14:12:17: Epoch: 1, num_updates: 400, loss: 151.717 -> 128.037
+09-23 14:12:38: Epoch: 1, num_updates: 500, loss: 128.037 -> 94.499
+09-23 14:12:59: Epoch: 1, num_updates: 600, loss: 94.499 -> 62.694
+09-23 14:13:19: Epoch: 1, num_updates: 700, loss: 62.694 -> 57.181
+09-23 14:13:40: Epoch: 1, num_updates: 800, loss: 57.181 -> 60.639
+09-23 14:14:02: Epoch: 1, num_updates: 900, loss: 60.639 -> 57.629
+09-23 14:14:23: Epoch: 1, num_updates: 1000, loss: 57.629 -> 59.645
+09-23 14:14:44: Epoch: 1, num_updates: 1100, loss: 59.645 -> 58.359
+09-23 14:15:04: Epoch: 1, num_updates: 1200, loss: 58.359 -> 56.020
+09-23 14:15:25: Epoch: 1, num_updates: 1300, loss: 56.020 -> 55.940
+09-23 14:15:46: Epoch: 1, num_updates: 1400, loss: 55.940 -> 57.291
+09-23 14:16:07: Epoch: 1, num_updates: 1500, loss: 57.291 -> 52.999
+09-23 14:16:26: Epoch: 1, num_updates: 1600, loss: 52.999 -> 51.039
+09-23 14:16:48: Epoch: 1, num_updates: 1700, loss: 51.039 -> 54.638
+09-23 14:17:09: Epoch: 1, num_updates: 1800, loss: 54.638 -> 53.667
+09-23 14:17:29: Epoch: 1, num_updates: 1900, loss: 53.667 -> 52.918
+09-23 14:17:50: Epoch: 1, num_updates: 2000, loss: 52.918 -> 50.250
+09-23 14:18:11: Epoch: 1, num_updates: 2100, loss: 50.250 -> 50.053
+09-23 14:18:33: Epoch: 1, num_updates: 2200, loss: 50.053 -> 52.542
+09-23 14:18:53: Epoch: 1, num_updates: 2300, loss: 52.542 -> 47.798
+09-23 14:19:14: Epoch: 1, num_updates: 2400, loss: 47.798 -> 49.544
+09-23 14:19:36: Epoch: 1, num_updates: 2500, loss: 49.544 -> 49.538
+09-23 14:19:56: Epoch: 1, num_updates: 2600, loss: 49.538 -> 46.441
+09-23 14:20:17: Epoch: 1, num_updates: 2700, loss: 46.441 -> 47.109
+09-23 14:20:38: Epoch: 1, num_updates: 2800, loss: 47.109 -> 47.406
+09-23 14:20:46: --------------------- ctc training ------------------------
+09-23 14:20:46: Epoch: 1, ctc loss: 0.000 -> 83.197
+09-23 14:21:43: --------------------------------------------------
+09-23 14:21:43: Epoch: 1, Train ACC: 0.00000, 0/1002
+09-23 14:21:43: Epoch: 1, Train WER: 0.83149, SUB: 0.05731, INS: 0.00088, DEL: 0.77329
+09-23 14:22:16: --------------------------------------------------
+09-23 14:22:16: Epoch: 1, DEV ACC: 0.00000, 0/540
+09-23 14:22:16: Epoch: 1, DEV WER: 0.81543, SUB: 0.06797, INS: 0.00075, DEL: 0.74672
+09-23 14:22:16: [Relaxation Evaluation] Epoch: 1, DEV WER: 81.40000, SUB: 6.00000, INS: 0.30000, DEL: 75.10000
+09-23 14:22:16: CURRENT BEST PERFORMANCE (epoch: 1): WER: 81.40000, SUB: 6.00000, INS: 0.30000, DEL: 75.10000
+09-23 14:22:16: lr: 0.000100
+09-23 14:22:16: lr: 0.000100

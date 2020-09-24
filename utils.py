@@ -18,6 +18,7 @@ def neq_load_customized(model, pretrained_dict, only_load_backbone=False):
         if k in model_dict:
             if only_load_backbone:
                 if "enc1" not in k and "enc2" not in k and "fc" not in k:
+                    print("In model_dict and in backbone module: ", k)
                     tmp[k] = v
                 else:
                     print("In model_dict, but not in backbone module: ", k)

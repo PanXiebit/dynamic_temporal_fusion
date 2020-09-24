@@ -5,7 +5,8 @@ Implementation of "Fully Convolutional Networks for Continuous Sign Language Rec
 import torch
 import torch.nn as nn
 # from .local_attn import Encoder, mask_local_mask, LayerNorm
-from src.modules.tcna import TemporalAttention3
+from src.modules.tcna import TemporalAttention5
+from src.modules.causal_conv import TemporalBlock
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
@@ -56,25 +57,9 @@ class MainStream(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d(output_size=1)
         # self-attention
 
-        # encoder G1, two F5-S1-P2-M2
-        self.tcna = TemporalAttention3(feat_dim=512, window_size=16, dropout=0.2) # [bs ,512, t/4]
-        self.enc1_conv1 = nn.Conv1d(in_channels=512,
-                                    out_channels=512,
-                                    kernel_size=5,
-                                    stride=1,
-                                    padding=2)
-        self.enc1_bn1 = nn.BatchNorm1d(512, affine=True)
-        self.enc1_pool1 = nn.MaxPool1d(kernel_size=2, stride=2)
-
-        self.enc1_conv2 = nn.Conv1d(in_channels=512,
-                                    out_channels=512,
-                                    kernel_size=5,
-                                    stride=1,
-                                    padding=2)
-        self.enc1_bn2 = nn.BatchNorm1d(512, affine=True)
-        self.enc1_pool2 = nn.MaxPool1d(kernel_size=2, stride=2)
-        # self.enc1 = nn.Sequential(self.enc1_conv1, self.enc1_bn1, self.relu, self.enc1_pool1,
-        #                          self.enc1_conv2, self.enc1_bn2, self.relu, self.enc1_pool2)
+        # encoder G1, two F5-S1-P2
+        self.tcna = TemporalAttention5(feat_dim=512, window_size=8, dropout=0.1)
+        self.enc1 = TemporalBlock(512, 512, 3, 1, 1)
 
         # encoder G2, one F3-S1-P1
         self.enc2_conv = nn.Conv1d(in_channels=512,
@@ -83,8 +68,6 @@ class MainStream(nn.Module):
                                    stride=1,
                                    padding=1)
         self.enc2_bn = nn.BatchNorm1d(1024, affine=True)
-        # self.enc2 = nn.Sequential(self.enc2_conv, self.enc2_bn, self.relu)
-
         self.fc = nn.Linear(1024, vocab_size)
 
         self.init()
@@ -121,19 +104,12 @@ class MainStream(nn.Module):
         x = self.avgpool(x).squeeze_()  # [bs*t, 512]
 
         x = x.reshape(bs, -1, 512)     # [bs, t ,512]
-        x = self.tcna(x)   # [bs, t ,512]
-        x = x.permute(0, 2, 1)  # [bs, 512, t]
+        x, len_video = self.tcna(x)   # [bs, t/4 ,512]
+        x = x.permute(0, 2, 1)  # [bs, 512, t/4]
 
         # enc1
-        x = self.enc1_conv1(x)  # [bs, 512, t/2]
-        x = self.enc1_bn1(x)
-        x = self.relu(x)
-        x = self.enc1_pool1(x)  # [bs, 512, t/2]
+        x = self.enc1(x)  # [bs, 512, t/4]
 
-        x = self.enc1_conv2(x)  # [bs, 512, t/2]
-        x = self.enc1_bn2(x)
-        x = self.relu(x)
-        x = self.enc1_pool2(x)  # [bs, 512, t/4]
         # enc2
         x = self.enc2_conv(x)
         x = self.enc2_bn(x)
@@ -141,7 +117,7 @@ class MainStream(nn.Module):
 
         out = out.permute(0, 2, 1)
         logits = self.fc(out)  # [batch, t/4, vocab_size]
-        len_video = torch.Tensor(bs * [logits.size(1)]).long().to(logits.device)
+        # len_video = torch.Tensor(bs * [logits.size(1)]).long().to(logits.device)
         return logits, len_video
 
 
