@@ -11,6 +11,8 @@ import numpy as np
 import tensorflow as tf
 import ctcdecode
 from utils import neq_load_customized
+import math
+
 
 class Trainer(object):
     def __init__(self, opts, model, criterion, vocabulary, vocab_size, blank_id):
@@ -316,15 +318,28 @@ class Trainer(object):
     
     def adjust_learning_rate(self, epoch):
         """Sets the learning rate to the initial LR decayed by 10 every 10 epochs"""
-        if epoch >= 40:
+        if epoch == 21:
             for param_group in self.optimizer.param_groups:
                 param_group['lr'] = param_group['lr'] * 0.5
-        elif epoch >= 60:
+                logging.info("lr: {:.6f}".format(param_group["lr"]))
+        elif epoch == 30:
             for param_group in self.optimizer.param_groups:
                 param_group['lr'] = param_group['lr'] * 0.5
+                logging.info("lr: {:.6f}".format(param_group["lr"]))
         else:
             for param_group in self.optimizer.param_groups:
                 logging.info("lr: {:.6f}".format(param_group["lr"]))
+
+    def warm_learning_rate(self, num_updates):
+        def warm_up_lr(step, warmup_steps=10000):
+            arg1 = 1 / math.sqrt(step)
+            arg2 = step * (warmup_steps ** -1.5)
+            return 0.015 * min(arg1, arg2)
+
+        lr = warm_up_lr(step=num_updates)
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] = lr
+            logging.info("lr: {:.6f}".format(param_group["lr"]))
 
 
     def post_process_prediction(self, tensor):
