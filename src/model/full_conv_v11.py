@@ -6,6 +6,8 @@ import torch
 import torch.nn as nn
 # from .local_attn import Encoder, mask_local_mask, LayerNorm
 from src.modules.tcna import TemporalAttention3
+import torch.nn.functional as F
+
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
@@ -56,11 +58,12 @@ class MainStream(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d(output_size=1)
         # self-attention
 
-        # encoder G1, two F5-S1-P2-M2
+
         self.tcna = TemporalAttention3(feat_dim=512, window_size=16, dropout=0.2) # [bs ,512, t/4]
+        # encoder G1, two F5-S1-P2-M2
         self.enc1_conv1 = nn.Conv1d(in_channels=512,
                                     out_channels=512,
-                                    kernel_size=5,
+                                    kernel_size=3,
                                     stride=1,
                                     padding=2)
         self.enc1_bn1 = nn.BatchNorm1d(512, momentum=momentum, affine=True)
@@ -68,7 +71,7 @@ class MainStream(nn.Module):
 
         self.enc1_conv2 = nn.Conv1d(in_channels=512,
                                     out_channels=512,
-                                    kernel_size=5,
+                                    kernel_size=3,
                                     stride=1,
                                     padding=2)
         self.enc1_bn2 = nn.BatchNorm1d(512, momentum=momentum, affine=True)
@@ -76,6 +79,7 @@ class MainStream(nn.Module):
         # self.enc1 = nn.Sequential(self.enc1_conv1, self.enc1_bn1, self.relu, self.enc1_pool1,
         #                          self.enc1_conv2, self.enc1_bn2, self.relu, self.enc1_pool2)
 
+        self.tcna2 = TemporalAttention3(feat_dim=512, window_size=4, dropout=0.2)  # [bs ,512, t/4]
         # encoder G2, one F3-S1-P1
         self.enc2_conv = nn.Conv1d(in_channels=512,
                                    out_channels=1024,
@@ -134,6 +138,9 @@ class MainStream(nn.Module):
         x = self.enc1_bn2(x)
         x = self.relu(x)
         x = self.enc1_pool2(x)  # [bs, 512, t/4]
+
+        x = self.tcna2(x.permute(0, 2, 1))
+        x = x.permute(0, 2, 1)
         # enc2
         x = self.enc2_conv(x)
         x = self.enc2_bn(x)

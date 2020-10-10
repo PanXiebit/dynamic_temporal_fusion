@@ -21,7 +21,7 @@ class PhoenixVideo(Dataset):
         self.video_path = video_path
         self.phase = phase
         self.sample = True
-        self.input_shape = 200
+        self.input_shape = 224
 
         self.alignment = {}
         self.vocab = Vocabulary(self.vocab_file)
@@ -30,12 +30,12 @@ class PhoenixVideo(Dataset):
                                          std=[0.229, 0.224, 0.225])
 
         self.transform = transforms.Compose([
-            transforms.Resize((228, 228)),
+            transforms.Resize((256, 256)),
             transforms.RandomCrop(self.input_shape),
             transforms.ToTensor(),
         ])
         self.test_transform = transforms.Compose([
-            transforms.Resize((228, 228)),
+            transforms.Resize((256, 256)),
             transforms.CenterCrop(self.input_shape),
             transforms.ToTensor(),
         ])

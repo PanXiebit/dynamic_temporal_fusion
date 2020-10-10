@@ -16,11 +16,11 @@ import torch.nn.functional as F
 import ctcdecode
 from metrics.wer import get_wer_delsubins
 from itertools import groupby
-from src.model.full_conv_v5 import MainStream
+from src.model.full_conv_v10 import MainStream
 
 def main():
     opts = parse_args()
-    init_logging(os.path.join(opts.log_dir, '{:s}_log.txt'.format(opts.task)))
+    init_logging(os.path.join(opts.log_dir, '{:s}_log_win8_win2.txt'.format(opts.task)))
 
     if torch.cuda.is_available():
         torch.cuda.set_device(opts.gpu)

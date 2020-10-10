@@ -5,8 +5,8 @@ from utils import init_logging, LossManager, ModelManager
 import os
 # from src.model.dilated_slr import DilatedSLRNet
 from src.criterion.ctc_loss import CtcLoss
-from src.model.full_conv_v10 import MainStream
-from src.trainer import Trainer
+from src.model.full_conv_v5 import MainStream
+from src.trainer_ema import Trainer
 import logging
 import numpy as np
 import uuid
@@ -14,6 +14,8 @@ from metrics.wer import get_phoenix_wer
 from tqdm import tqdm
 from src.data.vocabulary import Vocabulary
 import random
+from src.ema import EMA
+
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
@@ -46,8 +48,11 @@ def main():
     vocabulary = Vocabulary(opts.vocab_file)
     model = MainStream(vocab_size, opts.bn_momentum)
     criterion = CtcLoss(opts, blank_id, device, reduction="none")
+    ema = EMA(model, decay=0.999)
+    # 初始化
+    ema.register()
 
-    logging.info(model)
+    # print(model)
     # Build trainer
     trainer = Trainer(opts, model, criterion, vocabulary, vocab_size, blank_id)
 
@@ -72,38 +77,27 @@ def main():
     while epoch < opts.max_epoch and trainer.get_num_updates() < opts.max_updates:
         epoch += 1
         trainer.adjust_learning_rate(epoch)
-        loss = train(opts, train_datasets, valid_datasets, trainer, epoch, num_updates, loss)
+        loss = train(opts, train_datasets, valid_datasets, trainer, epoch, num_updates, loss, ema)
 
         if epoch <= opts.stage_epoch:
             eval_train(opts, train_datasets, trainer, epoch)
             # phoenix_eval_err = eval_tf(opts, valid_datasets, trainer, epoch)
-            phoenix_eval_err = eval(opts, valid_datasets, trainer, epoch)
+            phoenix_eval_err = eval(opts, valid_datasets, trainer, epoch, ema)
         else:
             # eval_train(opts, train_datasets, trainer, epoch)
-            phoenix_eval_err = eval(opts, valid_datasets, trainer, epoch)
+            phoenix_eval_err = eval(opts, valid_datasets, trainer, epoch, ema)
 
         save_ckpt = os.path.join(opts.log_dir, 'ep{:d}_{:.4f}.pkl'.format(epoch, phoenix_eval_err[0]))
         trainer.save_checkpoint(save_ckpt, epoch, num_updates, loss)
         model_manager.update(save_ckpt, phoenix_eval_err, epoch)
 
 
-def train(opts, train_datasets, valid_datasets, trainer, epoch, num_updates, last_loss):
+def train(opts, train_datasets, valid_datasets, trainer, epoch, num_updates, last_loss, ema):
     train_iter = trainer.get_batch_iterator(train_datasets, batch_size=opts.batch_size, shuffle=True)
     ctc_epoch_loss, dec_epoch_loss = [], []
     for samples in train_iter:
-        # print(samples.keys())
-        # print(samples["data"].shape, samples["len_data"])
-        # print(samples["label"], torch.sum(samples["len_label"]))
-        # print(samples["decoder_label"], samples["len_decoder_label"])
-        # exit()
-        # if epoch <= opts.stage_epoch:
-        #     loss, num_updates = trainer.train_unlike_step(samples)
-        #     ctc_loss = loss.item()
-        #     ctc_loss_manager.update(ctc_loss, epoch, num_updates)
-        #     ctc_epoch_loss.append(ctc_loss)
-        # else:
-        #trainer.warm_learning_rate(num_updates)
-        loss, num_updates = trainer.train_step(samples)
+        # trainer.warm_learning_rate(num_updates)
+        loss, num_updates = trainer.train_step(samples, ema)
         ctc_loss = loss.item()
         ctc_epoch_loss.append(ctc_loss)
         lrs = trainer.get_lr()
@@ -116,7 +110,9 @@ def train(opts, train_datasets, valid_datasets, trainer, epoch, num_updates, las
     return last_loss
 
 
-def eval(opts, valid_datasets, trainer, epoch):
+def eval(opts, valid_datasets, trainer, epoch, ema):
+    ema.apply_shadow()
+
     eval_iter = trainer.get_batch_iterator(valid_datasets, batch_size=opts.batch_size, shuffle=False)
     decoded_dict = {}
     val_err, val_correct, val_count = np.zeros([4]), 0, 0
@@ -147,6 +143,7 @@ def eval(opts, valid_datasets, trainer, epoch):
     phoenix_eval_err = get_phoenix_wer(txt_file, 'dev', tmp_prefix)
     logging.info('[Relaxation Evaluation] Epoch: {:d}, DEV WER: {:.5f}, SUB: {:.5f}, INS: {:.5f}, DEL: {:.5f}'.format(epoch,
         phoenix_eval_err[0], phoenix_eval_err[1], phoenix_eval_err[2], phoenix_eval_err[3]))
+    ema.restore()
     return phoenix_eval_err
 
 

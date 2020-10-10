@@ -13,6 +13,8 @@ class CtcLoss(_Loss):
         super(CtcLoss, self).__init__()
         self.ctcloss = nn.CTCLoss(blank=blank_id, reduction=reduction)
         self.device = device
+        self.opts= opts
+
 
     def forward(self, model, samples):
         video = samples["data"]
@@ -21,6 +23,10 @@ class CtcLoss(_Loss):
         len_label = samples["len_label"]
         logits, _ = model(video, len_video)
         len_video /= 4
+
+        if self.opts.DEBUG:
+            video = torch.randn(2, 300, 3, 224, 224).to(video.device)
+            print(video.shape)
         logits = logits.permute(1, 0, 2)
         log_probs = logits.log_softmax(-1)   # T x N x C
         loss = self.ctcloss(log_probs.cpu(), label.cpu(), len_video.cpu(), len_label.cpu())

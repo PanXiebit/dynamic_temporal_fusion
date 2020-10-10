@@ -52,7 +52,7 @@ class Trainer(object):
                                                     blank_id=self.blank_id, num_processes=10)
 
 
-    def train_step(self, samples, update_freq=10):
+    def train_step(self, samples, ema):
         self._set_seed()  # seed is changed with the update_steps
         self.model.train()
         self.criterion.train()
@@ -66,44 +66,8 @@ class Trainer(object):
 
         self.set_num_updates(self.get_num_updates() + 1)
         self.optimizer.step()
+        ema.update()
         return loss, self.get_num_updates()
-
-    def train_unlike_step(self, samples, update_freq=10):
-        self._set_seed()  # seed is changed with the update_steps
-        self.model.train()
-        self.criterion.train()
-
-        self.optimizer.zero_grad()
-
-        samples = self._prepare_sample(samples)
-        loss, ctc_loss, custom_loss = self.criterion.unlikelihood_ctc(self.model, samples)
-        # loss /= update_freq
-        loss.backward()
-        self.set_num_updates(self.get_num_updates() + 1)
-        self.optimizer.step()
-
-        if self.get_num_updates() % self.opts.print_step == 0:
-            logging.info("num_updates: {}, ctc loss: {:.4f}, custom_loss: {:.4f}".
-                         format(self.get_num_updates(), ctc_loss, custom_loss))
-
-        return loss, self.get_num_updates()
-
-    def train_decoder_step(self, samples):
-        self._set_seed()  # seed is changed with the update_steps
-        self.model.train()
-        self.criterion.train()
-        self.optimizer.zero_grad()
-
-        samples = self._prepare_sample(samples)
-
-        loss, _, _ = self.criterion.forward_decoder(self.model, samples)
-
-        loss.backward()
-        self.optimizer.step()
-        self.optimizer.zero_grad()
-        self.set_num_updates(self.get_num_updates() + 1)
-        return loss, self.get_num_updates()
-
 
     def valid_step(self, samples, decoded_dict):
         with torch.no_grad():
@@ -232,7 +196,7 @@ class Trainer(object):
                           num_workers=num_workers,
                           collate_fn=datasets.collate_fn_video,
                           drop_last=drop_last,
-                          pin_memory=False)
+                          pin_memory=True)
 
 
     def save_checkpoint(self, filename, epoch, num_updates, loss):

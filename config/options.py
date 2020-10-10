@@ -31,6 +31,9 @@ def parse_args():
     p.add_argument('-us', '--update_step', type=int, default=1)
     p.add_argument('-upm', '--update_param', type=str, default='all')
 
+    p.add_argument('-bnmt', '--bn_momentum', type=float, default=0.1)
+
+
     # train
     p.add_argument('-rl', '--reset_lr', type=bool, default=False)
     p.add_argument('-db', '--DEBUG', type=bool, default=False)

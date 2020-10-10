@@ -1,0 +1,86 @@
+10-10 15:04:39: Using GPU!
+10-10 15:04:39: Namespace(DEBUG=False, batch_size=2, beam_width=5, bn_momentum=0.1, check_point='/home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/ep.pkl', clip=5.0, corpus_dev='Data/slr-phoenix14/dev.corpus.csv', corpus_dir='Data/slr-phoenix14', corpus_test='Data/slr-phoenix14/test.corpus.csv', corpus_train='Data/slr-phoenix14/train.corpus.csv', data_worker=8, dropout=0.3, eval_set='test', feature_dim=512, freeze_cnn=False, gpu=0, learning_rate=0.0001, log_dir='./log/reimp-conv', max_epoch=100, max_updates=10000000.0, momentum=0.9, only_load_backbone=False, optimizer='adam', pretrain='/home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/pretrain/ep.pkl', print_step=100, reset_lr=False, save_interval_updates=100, seed=8, stage_epoch=100, task='train_v10_win4_win1_big', update_param='all', update_step=1, valid_batch_size=1, video_path='/home/dell/xp_workspace/data/fullFrame-210x260px', vocab_file='Data/slr-phoenix14/newtrainingClasses.txt', weight_decay=0.0001)
+10-10 15:04:39: [DATASET: train]: total 5671 samples.
+10-10 15:04:39: [DATASET: dev]: total 540 samples.
+10-10 15:04:39: MainStream(
+  (conv): Conv2d(3, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+  (bn): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (relu): ReLU(inplace)
+  (pool): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+  (layers): Sequential(
+    (0): BasicBlock(
+      (conv1): Conv2d(32, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace)
+      (pool): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (conv1): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace)
+      (pool): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (conv1): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace)
+      (pool): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (conv1): Conv2d(256, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace)
+      (pool): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=1)
+  (tcna): TemporalAttention3(
+    (relu): ReLU()
+    (rnn): GRU(512, 512)
+    (pool): AdaptiveAvgPool1d(output_size=1)
+  )
+  (enc1_conv1): Conv1d(512, 512, kernel_size=(5,), stride=(1,), padding=(2,))
+  (enc1_bn1): BatchNorm1d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (enc1_pool1): MaxPool1d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+  (enc1_conv2): Conv1d(512, 512, kernel_size=(5,), stride=(1,), padding=(2,))
+  (enc1_bn2): BatchNorm1d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (enc1_pool2): MaxPool1d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+  (tcna2): TemporalAttention3(
+    (relu): ReLU()
+    (rnn): GRU(512, 512)
+    (pool): AdaptiveAvgPool1d(output_size=1)
+  )
+  (enc2_conv): Conv1d(512, 1024, kernel_size=(3,), stride=(1,), padding=(1,))
+  (enc2_bn): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (fc): Linear(in_features=1024, out_features=1237, bias=True)
+)
+10-10 15:04:42: No checkpoint file in found in /home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/ep.pkl
+10-10 15:04:42: | num. module params: 13325173 (num. trained: 13325173)
+10-10 15:04:42: lr: 0.000100
+10-10 15:04:42: lr: 0.000100
+10-10 15:05:45: Epoch: 1, num_updates: 100, loss: 91.665, lr: 0.0001, 0.0001
+10-10 15:06:42: Epoch: 1, num_updates: 200, loss: 107.962, lr: 0.0001, 0.0001
+10-10 15:07:39: Epoch: 1, num_updates: 300, loss: 35.803, lr: 0.0001, 0.0001
+10-10 15:08:35: Epoch: 1, num_updates: 400, loss: 87.364, lr: 0.0001, 0.0001
+10-10 15:09:32: Epoch: 1, num_updates: 500, loss: 70.123, lr: 0.0001, 0.0001
+10-10 15:10:32: Epoch: 1, num_updates: 600, loss: 64.264, lr: 0.0001, 0.0001
+10-10 15:11:32: Epoch: 1, num_updates: 700, loss: 47.173, lr: 0.0001, 0.0001
+10-10 15:12:30: Epoch: 1, num_updates: 800, loss: 68.577, lr: 0.0001, 0.0001
+10-10 15:13:28: Epoch: 1, num_updates: 900, loss: 56.561, lr: 0.0001, 0.0001
+10-10 15:14:25: Epoch: 1, num_updates: 1000, loss: 52.414, lr: 0.0001, 0.0001
+10-10 15:15:25: Epoch: 1, num_updates: 1100, loss: 79.011, lr: 0.0001, 0.0001
+10-10 15:16:23: Epoch: 1, num_updates: 1200, loss: 43.330, lr: 0.0001, 0.0001
+10-10 15:17:20: Epoch: 1, num_updates: 1300, loss: 62.335, lr: 0.0001, 0.0001
+10-10 15:18:17: Epoch: 1, num_updates: 1400, loss: 62.850, lr: 0.0001, 0.0001
+10-10 15:19:15: Epoch: 1, num_updates: 1500, loss: 49.976, lr: 0.0001, 0.0001
+10-10 15:20:13: Epoch: 1, num_updates: 1600, loss: 40.565, lr: 0.0001, 0.0001
+10-10 15:21:12: Epoch: 1, num_updates: 1700, loss: 43.273, lr: 0.0001, 0.0001
+10-10 15:22:10: Epoch: 1, num_updates: 1800, loss: 31.310, lr: 0.0001, 0.0001

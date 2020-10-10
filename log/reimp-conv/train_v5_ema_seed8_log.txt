@@ -1,0 +1,107 @@
+09-26 08:37:10: Using GPU!
+09-26 08:37:10: Namespace(DEBUG=False, batch_size=2, beam_width=5, bn_momentum=0.1, check_point='/home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/ep.pkl', clip=5.0, corpus_dev='Data/slr-phoenix14/dev.corpus.csv', corpus_dir='Data/slr-phoenix14', corpus_test='Data/slr-phoenix14/test.corpus.csv', corpus_train='Data/slr-phoenix14/train.corpus.csv', data_worker=8, dropout=0.3, eval_set='test', feature_dim=512, freeze_cnn=False, gpu=0, learning_rate=0.0001, log_dir='./log/reimp-conv', max_epoch=100, max_updates=10000000.0, momentum=0.9, only_load_backbone=False, optimizer='adam', pretrain='/home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/pretrain/ep.pkl', print_step=100, reset_lr=False, save_interval_updates=100, seed=8, stage_epoch=100, task='train_v5_ema', update_param='all', update_step=1, valid_batch_size=1, video_path='/home/dell/xp_workspace/data/fullFrame-210x260px', vocab_file='Data/slr-phoenix14/newtrainingClasses.txt', weight_decay=0.0001)
+09-26 08:37:10: [DATASET: train]: total 5671 samples.
+09-26 08:37:10: [DATASET: dev]: total 540 samples.
+09-26 08:37:13: No checkpoint file in found in /home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/ep.pkl
+09-26 08:37:13: | num. module params: 11749237 (num. trained: 11749237)
+09-26 08:37:13: lr: 0.000100
+09-26 08:37:13: lr: 0.000100
+09-26 08:37:31: Epoch: 1, num_updates: 100, loss: 120.580, lr: 0.0001, 0.0001
+09-26 08:37:47: Epoch: 1, num_updates: 200, loss: 100.771, lr: 0.0001, 0.0001
+09-26 08:38:03: Epoch: 1, num_updates: 300, loss: 44.144, lr: 0.0001, 0.0001
+09-26 08:38:19: Epoch: 1, num_updates: 400, loss: 61.815, lr: 0.0001, 0.0001
+09-26 08:38:35: Epoch: 1, num_updates: 500, loss: 87.720, lr: 0.0001, 0.0001
+09-26 08:38:50: Epoch: 1, num_updates: 600, loss: 47.841, lr: 0.0001, 0.0001
+09-26 08:39:06: Epoch: 1, num_updates: 700, loss: 59.705, lr: 0.0001, 0.0001
+09-26 08:39:22: Epoch: 1, num_updates: 800, loss: 41.697, lr: 0.0001, 0.0001
+09-26 08:39:38: Epoch: 1, num_updates: 900, loss: 61.610, lr: 0.0001, 0.0001
+09-26 08:39:54: Epoch: 1, num_updates: 1000, loss: 55.426, lr: 0.0001, 0.0001
+09-26 08:40:10: Epoch: 1, num_updates: 1100, loss: 48.287, lr: 0.0001, 0.0001
+09-26 08:40:26: Epoch: 1, num_updates: 1200, loss: 63.920, lr: 0.0001, 0.0001
+09-26 08:40:42: Epoch: 1, num_updates: 1300, loss: 43.543, lr: 0.0001, 0.0001
+09-26 08:40:58: Epoch: 1, num_updates: 1400, loss: 75.275, lr: 0.0001, 0.0001
+09-26 08:41:15: Epoch: 1, num_updates: 1500, loss: 100.918, lr: 0.0001, 0.0001
+09-26 08:41:31: Epoch: 1, num_updates: 1600, loss: 53.907, lr: 0.0001, 0.0001
+09-26 08:41:47: Epoch: 1, num_updates: 1700, loss: 67.970, lr: 0.0001, 0.0001
+09-26 08:42:04: Epoch: 1, num_updates: 1800, loss: 64.382, lr: 0.0001, 0.0001
+09-26 08:42:20: Epoch: 1, num_updates: 1900, loss: 63.169, lr: 0.0001, 0.0001
+09-26 08:42:36: Epoch: 1, num_updates: 2000, loss: 61.978, lr: 0.0001, 0.0001
+09-26 08:42:53: Epoch: 1, num_updates: 2100, loss: 59.614, lr: 0.0001, 0.0001
+09-26 08:43:09: Epoch: 1, num_updates: 2200, loss: 77.259, lr: 0.0001, 0.0001
+09-26 08:43:25: Epoch: 1, num_updates: 2300, loss: 69.819, lr: 0.0001, 0.0001
+09-26 08:43:41: Epoch: 1, num_updates: 2400, loss: 23.606, lr: 0.0001, 0.0001
+09-26 08:43:58: Epoch: 1, num_updates: 2500, loss: 53.537, lr: 0.0001, 0.0001
+09-26 08:44:15: Epoch: 1, num_updates: 2600, loss: 51.144, lr: 0.0001, 0.0001
+09-26 08:44:31: Epoch: 1, num_updates: 2700, loss: 30.746, lr: 0.0001, 0.0001
+09-26 08:44:46: Epoch: 1, num_updates: 2800, loss: 42.486, lr: 0.0001, 0.0001
+09-26 08:44:52: --------------------- ctc training ------------------------
+09-26 08:44:52: Epoch: 1, ctc loss: 0.000 -> 60.811
+09-26 08:45:52: --------------------------------------------------
+09-26 08:45:52: Epoch: 1, Train ACC: 0.00000, 0/1002
+09-26 08:45:52: Epoch: 1, Train WER: 0.88816, SUB: 0.08905, INS: 0.00014, DEL: 0.79897
+09-26 08:46:31: --------------------------------------------------
+09-26 08:46:31: Epoch: 1, DEV ACC: 0.00000, 0/540
+09-26 08:46:31: Epoch: 1, DEV WER: 0.86369, SUB: 0.09377, INS: 0.00062, DEL: 0.76930
+09-26 08:46:31: [Relaxation Evaluation] Epoch: 1, DEV WER: 87.50000, SUB: 8.40000, INS: 0.10000, DEL: 79.00000
+09-26 08:46:32: CURRENT BEST PERFORMANCE (epoch: 1): WER: 87.50000, SUB: 8.40000, INS: 0.10000, DEL: 79.00000
+09-26 08:46:32: lr: 0.000100
+09-26 08:46:32: lr: 0.000100
+09-26 08:46:46: Epoch: 2, num_updates: 2900, loss: 57.500, lr: 0.0001, 0.0001
+09-26 08:47:04: Epoch: 2, num_updates: 3000, loss: 50.532, lr: 0.0001, 0.0001
+09-26 08:47:26: Epoch: 2, num_updates: 3100, loss: 54.390, lr: 0.0001, 0.0001
+09-26 08:47:43: Epoch: 2, num_updates: 3200, loss: 45.401, lr: 0.0001, 0.0001
+09-26 08:48:01: Epoch: 2, num_updates: 3300, loss: 79.722, lr: 0.0001, 0.0001
+09-26 08:48:30: Epoch: 2, num_updates: 3400, loss: 64.118, lr: 0.0001, 0.0001
+09-26 08:48:58: Epoch: 2, num_updates: 3500, loss: 37.238, lr: 0.0001, 0.0001
+09-26 08:49:26: Epoch: 2, num_updates: 3600, loss: 54.308, lr: 0.0001, 0.0001
+09-26 08:49:55: Epoch: 2, num_updates: 3700, loss: 49.779, lr: 0.0001, 0.0001
+09-26 08:50:23: Epoch: 2, num_updates: 3800, loss: 31.477, lr: 0.0001, 0.0001
+09-26 08:50:52: Epoch: 2, num_updates: 3900, loss: 40.685, lr: 0.0001, 0.0001
+09-26 08:51:20: Epoch: 2, num_updates: 4000, loss: 69.345, lr: 0.0001, 0.0001
+09-26 08:51:48: Epoch: 2, num_updates: 4100, loss: 62.226, lr: 0.0001, 0.0001
+09-26 08:52:16: Epoch: 2, num_updates: 4200, loss: 39.102, lr: 0.0001, 0.0001
+09-26 08:52:45: Epoch: 2, num_updates: 4300, loss: 101.487, lr: 0.0001, 0.0001
+09-26 08:53:14: Epoch: 2, num_updates: 4400, loss: 109.515, lr: 0.0001, 0.0001
+09-26 08:53:42: Epoch: 2, num_updates: 4500, loss: 41.406, lr: 0.0001, 0.0001
+09-26 08:54:10: Epoch: 2, num_updates: 4600, loss: 36.452, lr: 0.0001, 0.0001
+09-26 08:54:39: Epoch: 2, num_updates: 4700, loss: 24.601, lr: 0.0001, 0.0001
+09-26 08:55:07: Epoch: 2, num_updates: 4800, loss: 22.736, lr: 0.0001, 0.0001
+09-26 08:55:36: Epoch: 2, num_updates: 4900, loss: 51.609, lr: 0.0001, 0.0001
+09-26 08:56:04: Epoch: 2, num_updates: 5000, loss: 50.533, lr: 0.0001, 0.0001
+09-26 08:56:32: Epoch: 2, num_updates: 5100, loss: 32.413, lr: 0.0001, 0.0001
+09-26 08:56:59: Epoch: 2, num_updates: 5200, loss: 38.566, lr: 0.0001, 0.0001
+09-26 08:57:27: Epoch: 2, num_updates: 5300, loss: 35.042, lr: 0.0001, 0.0001
+09-26 08:57:55: Epoch: 2, num_updates: 5400, loss: 41.962, lr: 0.0001, 0.0001
+09-26 08:58:23: Epoch: 2, num_updates: 5500, loss: 27.946, lr: 0.0001, 0.0001
+09-26 08:58:51: Epoch: 2, num_updates: 5600, loss: 22.985, lr: 0.0001, 0.0001
+09-26 08:59:10: --------------------- ctc training ------------------------
+09-26 08:59:10: Epoch: 2, ctc loss: 60.811 -> 48.144
+09-26 09:00:15: --------------------------------------------------
+09-26 09:00:15: Epoch: 2, Train ACC: 0.00000, 0/1002
+09-26 09:00:15: Epoch: 2, Train WER: 0.75188, SUB: 0.18371, INS: 0.00064, DEL: 0.56753
+09-26 09:00:51: --------------------------------------------------
+09-26 09:00:51: Epoch: 2, DEV ACC: 0.00370, 2/540
+09-26 09:00:51: Epoch: 2, DEV WER: 0.71234, SUB: 0.20684, INS: 0.00206, DEL: 0.50344
+09-26 09:00:52: [Relaxation Evaluation] Epoch: 2, DEV WER: 70.90000, SUB: 17.90000, INS: 0.50000, DEL: 52.50000
+09-26 09:00:53: CURRENT BEST PERFORMANCE (epoch: 2): WER: 70.90000, SUB: 17.90000, INS: 0.50000, DEL: 52.50000
+09-26 09:00:53: lr: 0.000100
+09-26 09:00:53: lr: 0.000100
+09-26 09:01:01: Epoch: 3, num_updates: 5700, loss: 32.586, lr: 0.0001, 0.0001
+09-26 09:01:21: Epoch: 3, num_updates: 5800, loss: 37.581, lr: 0.0001, 0.0001
+09-26 09:01:42: Epoch: 3, num_updates: 5900, loss: 70.546, lr: 0.0001, 0.0001
+09-26 09:02:04: Epoch: 3, num_updates: 6000, loss: 26.256, lr: 0.0001, 0.0001
+09-26 09:02:25: Epoch: 3, num_updates: 6100, loss: 29.529, lr: 0.0001, 0.0001
+09-26 09:02:53: Epoch: 3, num_updates: 6200, loss: 28.931, lr: 0.0001, 0.0001
+09-26 09:03:21: Epoch: 3, num_updates: 6300, loss: 35.126, lr: 0.0001, 0.0001
+09-26 09:03:50: Epoch: 3, num_updates: 6400, loss: 34.794, lr: 0.0001, 0.0001
+09-26 09:04:19: Epoch: 3, num_updates: 6500, loss: 50.275, lr: 0.0001, 0.0001
+09-26 09:04:48: Epoch: 3, num_updates: 6600, loss: 27.656, lr: 0.0001, 0.0001
+09-26 09:05:17: Epoch: 3, num_updates: 6700, loss: 36.763, lr: 0.0001, 0.0001
+09-26 09:05:46: Epoch: 3, num_updates: 6800, loss: 41.597, lr: 0.0001, 0.0001
+09-26 09:06:14: Epoch: 3, num_updates: 6900, loss: 30.841, lr: 0.0001, 0.0001
+09-26 09:06:43: Epoch: 3, num_updates: 7000, loss: 27.371, lr: 0.0001, 0.0001
+09-26 09:07:11: Epoch: 3, num_updates: 7100, loss: 46.999, lr: 0.0001, 0.0001
+09-26 09:07:40: Epoch: 3, num_updates: 7200, loss: 30.873, lr: 0.0001, 0.0001
+09-26 09:08:08: Epoch: 3, num_updates: 7300, loss: 46.714, lr: 0.0001, 0.0001
+09-26 09:08:37: Epoch: 3, num_updates: 7400, loss: 46.875, lr: 0.0001, 0.0001
+09-26 09:09:06: Epoch: 3, num_updates: 7500, loss: 41.905, lr: 0.0001, 0.0001

@@ -36,13 +36,13 @@ class BasicBlock(nn.Module):
 
 
 class MainStream(nn.Module):
-    def __init__(self, vocab_size):
+    def __init__(self, vocab_size, momentum=0.1):
         super(MainStream, self).__init__()
 
         # cnn
         # first layer: channel 3 -> 32
         self.conv = conv3x3(3, 32)
-        self.bn = nn.BatchNorm2d(32, affine=True)
+        self.bn = nn.BatchNorm2d(32, momentum=momentum,  affine=True)
         self.relu = nn.ReLU(inplace=True)
         self.pool = nn.MaxPool2d(2, 2)
 
@@ -63,7 +63,7 @@ class MainStream(nn.Module):
                                     kernel_size=5,
                                     stride=1,
                                     padding=2)
-        self.enc1_bn1 = nn.BatchNorm1d(512, affine=True)
+        self.enc1_bn1 = nn.BatchNorm1d(512, momentum=momentum, affine=True)
         self.enc1_pool1 = nn.MaxPool1d(kernel_size=2, stride=2)
 
         self.enc1_conv2 = nn.Conv1d(in_channels=512,
@@ -71,18 +71,19 @@ class MainStream(nn.Module):
                                     kernel_size=5,
                                     stride=1,
                                     padding=2)
-        self.enc1_bn2 = nn.BatchNorm1d(512, affine=True)
+        self.enc1_bn2 = nn.BatchNorm1d(512, momentum=momentum, affine=True)
         self.enc1_pool2 = nn.MaxPool1d(kernel_size=2, stride=2)
         # self.enc1 = nn.Sequential(self.enc1_conv1, self.enc1_bn1, self.relu, self.enc1_pool1,
         #                          self.enc1_conv2, self.enc1_bn2, self.relu, self.enc1_pool2)
 
+        self.tcna2 = TemporalAttention3(feat_dim=512, window_size=4, dropout=0.2)  # [bs ,512, t/4]
         # encoder G2, one F3-S1-P1
         self.enc2_conv = nn.Conv1d(in_channels=512,
                                    out_channels=1024,
                                    kernel_size=3,
                                    stride=1,
                                    padding=1)
-        self.enc2_bn = nn.BatchNorm1d(1024, affine=True)
+        self.enc2_bn = nn.BatchNorm1d(1024, momentum=momentum, affine=True)
         # self.enc2 = nn.Sequential(self.enc2_conv, self.enc2_bn, self.relu)
 
         self.fc = nn.Linear(1024, vocab_size)
@@ -134,6 +135,9 @@ class MainStream(nn.Module):
         x = self.enc1_bn2(x)
         x = self.relu(x)
         x = self.enc1_pool2(x)  # [bs, 512, t/4]
+
+        x = self.tcna2(x.permute(0, 2, 1))
+        x = x.permute(0, 2, 1)
         # enc2
         x = self.enc2_conv(x)
         x = self.enc2_bn(x)
