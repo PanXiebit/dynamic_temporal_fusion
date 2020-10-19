@@ -15,7 +15,7 @@ from tqdm import tqdm
 from src.data.vocabulary import Vocabulary
 import random
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def setup_seed(seed):
     torch.manual_seed(seed)

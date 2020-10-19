@@ -122,7 +122,7 @@ class MainStream(nn.Module):
         x = self.avgpool(x).squeeze_()  # [bs*t, 512]
 
         x = x.reshape(bs, -1, 512)     # [bs, t ,512]
-        x, _ = self.tcna(x)   # [bs, t ,512]
+        x, scores1 = self.tcna(x)   # [bs, t ,512]
         x = x.permute(0, 2, 1)  # [bs, 512, t]
 
         # enc1
@@ -136,7 +136,7 @@ class MainStream(nn.Module):
         x = self.relu(x)
         x = self.enc1_pool2(x)  # [bs, 512, t/4]
 
-        x, _ = self.tcna2(x.permute(0, 2, 1))
+        x, scores2 = self.tcna2(x.permute(0, 2, 1))  # [bs, t/4 ,512]
         x = x.permute(0, 2, 1)
         # enc2
         x = self.enc2_conv(x)
@@ -146,7 +146,7 @@ class MainStream(nn.Module):
         out = out.permute(0, 2, 1)
         logits = self.fc(out)  # [batch, t/4, vocab_size]
         len_video = torch.Tensor(bs * [logits.size(1)]).long().to(logits.device)
-        return logits, len_video
+        return logits, len_video, scores1, scores2
 
 
 if __name__ == "__main__":

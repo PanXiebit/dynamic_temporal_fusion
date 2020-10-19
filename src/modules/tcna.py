@@ -103,7 +103,7 @@ class TemporalAttention3(nn.Module):
         scores = torch.matmul(x, x.transpose(-2, -1)) / math.sqrt(self.feat_dim)  # [batch, t, t]
         local_mask = mask_local_mask(size=x.size(1), local_ws=2 * self.window_size).to(x.device) # [batch, t, t]
 
-        scores = scores.masked_fill(local_mask == 0, -1e9)
+        scores = scores.masked_fill(local_mask == 0, -1e9)  # [batch, t, t]
         ids = scores.topk(k=self.window_size, dim=-1)[1].sort(-1)[0].detach_()  # require_grad=False, [batch, t, k]
 
         # print(ids)
@@ -133,7 +133,7 @@ class TemporalAttention3(nn.Module):
 
         # residual connection
         out += x
-        return out
+        return out, scores
 
 
 class TemporalAttention4(nn.Module):
@@ -264,6 +264,116 @@ class TemporalAttention5(nn.Module):
         #
         # out += sampled_x
         return out, torch.LongTensor(feature_len).to(x.device)
+
+class TemporalAttention6(nn.Module):
+    def __init__(self, feat_dim=512, window_size=12, dropout=0.2):
+        super(TemporalAttention6, self).__init__()
+        self.feat_dim = feat_dim
+        self.window_size = window_size
+        self.relu = nn.ReLU()
+        # self.k_tcn = TemporalConvNet(feat_dim, [feat_dim, feat_dim], kernel_size=3, dropout=dropout)
+        self.rnn = nn.GRU(feat_dim, feat_dim)
+        self.pool = nn.AdaptiveAvgPool1d(1)
+
+    def forward(self, x):
+        """
+
+        :param x:  [batch, t, 512]
+        :return:  [batch, t, window_size, 512]
+        """
+        scores = torch.matmul(x, x.transpose(-2, -1)) / math.sqrt(self.feat_dim)  # [batch, t, t]
+        local_mask = mask_local_mask(size=x.size(1), local_ws=2 * self.window_size).to(x.device) # [batch, t, t]
+
+        scores = scores.masked_fill(local_mask == 0, -1e9)  # [batch, t, t]
+        ids = scores.topk(k=self.window_size, dim=-1)[1].sort(-1)[0].detach_()  # require_grad=False, [batch, t, k]
+
+        # print(ids)
+
+        feature = []
+        for i in range(x.size(0)):  # batch
+            batch_t = []
+            for j in range(x.size(1)):  # t
+                t = x[i].index_select(0, ids[i, j, :]).unsqueeze(0)  # [1, k, 512]
+                batch_t.append(t)
+            batch_t = torch.cat(batch_t, dim=0).unsqueeze(0)   # [1, t, k, 512]
+            feature.append(batch_t)
+        feature = torch.cat(feature, dim=0) # [bs, t, k, 512]
+        feature = feature.reshape(-1, self.window_size, self.feat_dim)  # [bs*t, k, 512]
+
+        # tcn
+        # feature = feature.permute(0, 2, 1).contiguous()  # [bs*t, 512, k]
+        # out = self.k_tcn(feature) # [bs*t, 512, k]
+
+        # rnn
+        feature = feature.permute(1,0,2).contiguous()  # [k, bs*t, 512]
+        _, out = self.rnn(feature)  # [1, bs*t, 512]
+        # print(out.shape)
+
+        out = out.squeeze().reshape(x.size(0), x.size(1), -1)  # [batch, t, 512]
+        del feature
+
+        # residual connection
+        out += x
+        return out, scores
+
+
+class TemporalAttention7(nn.Module):
+    """
+    unimodal distribution regularized.
+    """
+    def __init__(self, feat_dim=512, window_size=12, dropout=0.2):
+        super(TemporalAttention7, self).__init__()
+        self.feat_dim = feat_dim
+        self.window_size = window_size
+        self.relu = nn.ReLU()
+        # self.k_tcn = TemporalConvNet(feat_dim, [feat_dim, feat_dim], kernel_size=3, dropout=dropout)
+        self.rnn = nn.GRU(feat_dim, feat_dim)
+        self.pool = nn.AdaptiveAvgPool1d(1)
+
+    def forward(self, x):
+        """
+
+        :param x:  [batch, t, 512]
+        :return:  [batch, t, window_size, 512]
+        """
+        scores = torch.matmul(x, x.transpose(-2, -1)) / math.sqrt(self.feat_dim)  # [batch, t, t]
+        local_mask = mask_local_mask(size=x.size(1), local_ws=2 * self.window_size).to(x.device) # [batch, t, t]
+
+        scores = scores.masked_fill(local_mask == 0, -1e9)  # [batch, t, t]
+        distribution = scores.softmax(-1)
+        poisson_dis = torch.randn(distribution)
+
+
+        ids = scores.topk(k=self.window_size, dim=-1)[1].sort(-1)[0].detach_()  # require_grad=False, [batch, t, k]
+
+        # print(ids)
+
+        feature = []
+        for i in range(x.size(0)):  # batch
+            batch_t = []
+            for j in range(x.size(1)):  # t
+                t = x[i].index_select(0, ids[i, j, :]).unsqueeze(0)  # [1, k, 512]
+                batch_t.append(t)
+            batch_t = torch.cat(batch_t, dim=0).unsqueeze(0)   # [1, t, k, 512]
+            feature.append(batch_t)
+        feature = torch.cat(feature, dim=0) # [bs, t, k, 512]
+        feature = feature.reshape(-1, self.window_size, self.feat_dim)  # [bs*t, k, 512]
+
+        # tcn
+        # feature = feature.permute(0, 2, 1).contiguous()  # [bs*t, 512, k]
+        # out = self.k_tcn(feature) # [bs*t, 512, k]
+
+        # rnn
+        feature = feature.permute(1,0,2).contiguous()  # [k, bs*t, 512]
+        _, out = self.rnn(feature)  # [1, bs*t, 512]
+        # print(out.shape)
+
+        out = out.squeeze().reshape(x.size(0), x.size(1), -1)  # [batch, t, 512]
+        del feature
+
+        # residual connection
+        out += x
+        return out, scores
 
 
 if __name__ == "__main__":

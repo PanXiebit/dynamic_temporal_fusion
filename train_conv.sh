@@ -1,7 +1,7 @@
 CUDA_VISIBLE_DEVICES=0
 
 python train.py \
-	--task train_v10_win4_win1_big \
+	--task train_v10_win0_win4_small \
 	--log_dir ./log/reimp-conv \
 	--bn_momentum 0.1 \
 	--learning_rate 1e-4 \

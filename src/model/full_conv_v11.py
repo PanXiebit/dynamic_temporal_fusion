@@ -65,15 +65,15 @@ class MainStream(nn.Module):
                                     out_channels=512,
                                     kernel_size=3,
                                     stride=1,
-                                    padding=2)
+                                    padding=1)
         self.enc1_bn1 = nn.BatchNorm1d(512, momentum=momentum, affine=True)
         self.enc1_pool1 = nn.MaxPool1d(kernel_size=2, stride=2)
 
         self.enc1_conv2 = nn.Conv1d(in_channels=512,
                                     out_channels=512,
-                                    kernel_size=3,
+                                    kernel_size=1,
                                     stride=1,
-                                    padding=2)
+                                    padding=0)
         self.enc1_bn2 = nn.BatchNorm1d(512, momentum=momentum, affine=True)
         self.enc1_pool2 = nn.MaxPool1d(kernel_size=2, stride=2)
         # self.enc1 = nn.Sequential(self.enc1_conv1, self.enc1_bn1, self.relu, self.enc1_pool1,

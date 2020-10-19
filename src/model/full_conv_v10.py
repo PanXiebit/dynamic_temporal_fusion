@@ -57,7 +57,7 @@ class MainStream(nn.Module):
         # self-attention
 
         # encoder G1, two F5-S1-P2-M2
-        self.tcna = TemporalAttention3(feat_dim=512, window_size=4, dropout=0.2) # [bs ,512, t/4]
+        # self.tcna = TemporalAttention3(feat_dim=512, window_size=16, dropout=0.2) # [bs ,512, t/4]
         self.enc1_conv1 = nn.Conv1d(in_channels=512,
                                     out_channels=512,
                                     kernel_size=5,
@@ -76,7 +76,7 @@ class MainStream(nn.Module):
         # self.enc1 = nn.Sequential(self.enc1_conv1, self.enc1_bn1, self.relu, self.enc1_pool1,
         #                          self.enc1_conv2, self.enc1_bn2, self.relu, self.enc1_pool2)
 
-        self.tcna2 = TemporalAttention3(feat_dim=512, window_size=1, dropout=0.2)  # [bs ,512, t/4]
+        self.tcna2 = TemporalAttention3(feat_dim=512, window_size=4, dropout=0.2)  # [bs ,512, t/4]
         # encoder G2, one F3-S1-P1
         self.enc2_conv = nn.Conv1d(in_channels=512,
                                    out_channels=1024,
@@ -122,7 +122,7 @@ class MainStream(nn.Module):
         x = self.avgpool(x).squeeze_()  # [bs*t, 512]
 
         x = x.reshape(bs, -1, 512)     # [bs, t ,512]
-        x = self.tcna(x)   # [bs, t ,512]
+        # x, _ = self.tcna(x)   # [bs, t ,512]
         x = x.permute(0, 2, 1)  # [bs, 512, t]
 
         # enc1
@@ -136,7 +136,7 @@ class MainStream(nn.Module):
         x = self.relu(x)
         x = self.enc1_pool2(x)  # [bs, 512, t/4]
 
-        x = self.tcna2(x.permute(0, 2, 1))
+        x, _ = self.tcna2(x.permute(0, 2, 1))
         x = x.permute(0, 2, 1)
         # enc2
         x = self.enc2_conv(x)

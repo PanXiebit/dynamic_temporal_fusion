@@ -6,4 +6,5 @@ log/reimp/*pkl
 *pyc
 log/reimp-conv/pretrain/
 log/reimp-conv/average/
-
+*/*pkl
+ablation_analysis/*pkl

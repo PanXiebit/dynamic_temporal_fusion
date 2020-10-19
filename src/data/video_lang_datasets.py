@@ -9,8 +9,9 @@ from PIL import Image
 from torchvision import datasets, transforms
 import random
 
+
 class PhoenixVideo(Dataset):
-    def __init__(self, vocab_file, corpus_dir, video_path, phase, DEBUG=False):
+    def __init__(self, vocab_file, corpus_dir, video_path, phase, DEBUG=False, sample=True):
         """
         :param phase:  'train', 'dev', 'test'
         """
@@ -20,22 +21,23 @@ class PhoenixVideo(Dataset):
         self.corpus_dir = corpus_dir
         self.video_path = video_path
         self.phase = phase
-        self.sample = True
-        self.input_shape = 224
+        self.sample = sample
+        self.input_shape = 112
+        self.resize_shape = 128
 
         self.alignment = {}
         self.vocab = Vocabulary(self.vocab_file)
-        
+
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                          std=[0.229, 0.224, 0.225])
 
         self.transform = transforms.Compose([
-            transforms.Resize((256, 256)),
+            transforms.Resize((self.resize_shape, self.resize_shape)),
             transforms.RandomCrop(self.input_shape),
             transforms.ToTensor(),
         ])
         self.test_transform = transforms.Compose([
-            transforms.Resize((256, 256)),
+            transforms.Resize((self.resize_shape, self.resize_shape)),
             transforms.CenterCrop(self.input_shape),
             transforms.ToTensor(),
         ])
@@ -55,13 +57,13 @@ class PhoenixVideo(Dataset):
         id = cur_vid_info['id']
         frames_list = self.get_images(cur_vid_info['path'])
         label = cur_vid_info['label']
-        data_len = len(frames_list)   # frame number
+        data_len = len(frames_list)  # frame number
         sample = {'id': id, 'data': frames_list, 'label': label, "data_len": data_len}
         return sample
 
     def load_video_list(self):
         phoenix_dataset = {}
-        outliers = ['13April_2011_Wednesday_tagesschau_default-14'] # '05July_2010_Monday_heute_default-8'
+        outliers = ['13April_2011_Wednesday_tagesschau_default-14']  # '05July_2010_Monday_heute_default-8'
         for task in ['train', 'dev', 'test']:
             if task != self.phase:
                 continue
@@ -125,7 +127,7 @@ class PhoenixVideo(Dataset):
 
     def load_image(self, img_name, phase, reduce_mean=True):
         image = Image.open(img_name)
-        if phase == "train" :
+        if phase == "train":
             image = self.transform(image)
         elif phase == "test" or phase == "dev":
             image = self.test_transform(image)
@@ -135,19 +137,20 @@ class PhoenixVideo(Dataset):
         # batch.sort(key=lambda x: x['data'].shape[0], reverse=True)
         len_video = [x["data_len"] for x in batch]
         len_label = [len(x['label']) for x in batch]
-        batch_video = torch.zeros(len(len_video), max(len_video), 3, self.input_shape, self.input_shape)  # padding with zeros
-        batch_decoder_label = torch.zeros(len(len_video), max(len_label) + 2).long()  # [batch, max_len_label]
+        batch_video = torch.zeros(len(len_video), max(len_video), 3, self.input_shape,
+                                  self.input_shape)  # padding with zeros
+        batch_decoder_label = torch.zeros(len(len_video), max(len_label)).long()  # [batch, max_len_label]
         batch_label = []
         IDs = []
         len_decoder_label = []
         for i, bat in enumerate(batch):
             data = self.load_video_from_images(bat['data'])
             label = bat['label']
-            len_decoder_label.append(len_label[i] + 2)
+            len_decoder_label.append(len_label[i])
             batch_label.extend(label)
-            batch_decoder_label[i, 1:1+len(label)] = torch.LongTensor(label)
-            batch_decoder_label[i, 0] = self.vocab.bos()   # bos
-            batch_decoder_label[i, 1+len(label)] = self.vocab.eos() # eos
+            batch_decoder_label[i, :len(label)] = torch.LongTensor(label)
+            # batch_decoder_label[i, 0] = self.vocab.bos()   # bos
+            # batch_decoder_label[i, 1+len(label)] = self.vocab.eos() # eos
             batch_video[i, :len_video[i], :] = torch.FloatTensor(data)
             IDs.append(bat['id'])
         batch_label = torch.LongTensor(batch_label)
@@ -159,13 +162,13 @@ class PhoenixVideo(Dataset):
         # batch_video = batch_video.permute(0, 2, 1)
 
         return {'data': batch_video, 'label': batch_label, 'decoder_label': batch_decoder_label,
-                'len_data': len_video, 'len_label': len_label, 'len_decoder_label':len_decoder_label,
+                'len_data': len_video, 'len_label': len_label, 'len_decoder_label': len_decoder_label,
                 'id': IDs}
 
 
 class caffeFeatureLoader():
     @staticmethod
-    def loadVideoC3DFeature(sample_name, feattype = 'pool5'):
+    def loadVideoC3DFeature(sample_name, feattype='pool5'):
         featnames = glob.glob(os.path.join(sample_name, '*.' + feattype))
         featnames.sort()
         feat = []
@@ -189,6 +192,7 @@ class caffeFeatureLoader():
                 feat.append(val)
         return feat, blob_shape
 
+
 if __name__ == "__main__":
     vocab_file = "/workspace/full_conv/Data/slr-phoenix14/newtrainingClasses.txt"
     corpus_dir = "/workspace/full_conv/Data/slr-phoenix14"
@@ -198,14 +202,14 @@ if __name__ == "__main__":
     print(train_datasets[0].keys(), train_datasets[0]["data"], train_datasets[0]["data_len"])
 
     train_iter = DataLoader(train_datasets,
-               batch_size=1,
-               shuffle=True,
-               num_workers=2,
-               collate_fn=train_datasets.collate_fn_video,
-               drop_last=True)
+                            batch_size=1,
+                            shuffle=True,
+                            num_workers=2,
+                            collate_fn=train_datasets.collate_fn_video,
+                            drop_last=True)
 
     for i, batch in enumerate(train_iter):
-        if i >0:
+        if i > 0:
             break
         print(batch.keys())
         print(batch["data"].shape)

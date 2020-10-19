@@ -1,0 +1,16 @@
+10-11 18:49:53: Using GPU!
+10-11 18:49:53: Namespace(DEBUG=False, batch_size=1, beam_width=5, bn_momentum=0.1, check_point='/home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/ep47_24.2000.pkl', clip=5.0, corpus_dev='Data/slr-phoenix14/dev.corpus.csv', corpus_dir='Data/slr-phoenix14', corpus_test='Data/slr-phoenix14/test.corpus.csv', corpus_train='Data/slr-phoenix14/train.corpus.csv', data_worker=8, dropout=0.3, eval_set='test', feature_dim=512, freeze_cnn=False, gpu=0, learning_rate=0.0001, log_dir='./log/debug', max_epoch=1000, max_updates=10000000.0, momentum=0.9, only_load_backbone=False, optimizer='adam', pretrain='', print_step=20, reset_lr=False, save_interval_updates=100, seed=8, stage_epoch=10, task='test', update_param='all', update_step=1, valid_batch_size=1, video_path='/home/dell/xp_workspace/data/fullFrame-210x260px', vocab_file='Data/slr-phoenix14/newtrainingClasses.txt', weight_decay=0.0)
+10-11 18:49:53: [DATASET: test]: total 629 samples.
+10-11 18:49:56: Loading checkpoint file from /home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/ep47_24.2000.pkl
+10-11 18:51:21: --------------------------------------------------
+10-11 18:51:21: Epoch: 47, DEV ACC: 0.07313, 46/629
+10-11 18:51:21: Epoch: 47, DEV WER: 0.29960, SUB: 0.18964, INS: 0.03990, DEL: 0.07006
+10-11 18:51:22: [Relaxation Evaluation] Epoch: 47, DEV WER: 23.60000, SUB: 12.10000, INS: 3.00000, DEL: 8.50000
+10-11 18:51:22: Using GPU!
+10-11 18:51:22: Namespace(DEBUG=False, batch_size=1, beam_width=5, bn_momentum=0.1, check_point='/home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/ep47_24.2000.pkl', clip=5.0, corpus_dev='Data/slr-phoenix14/dev.corpus.csv', corpus_dir='Data/slr-phoenix14', corpus_test='Data/slr-phoenix14/test.corpus.csv', corpus_train='Data/slr-phoenix14/train.corpus.csv', data_worker=8, dropout=0.3, eval_set='test', feature_dim=512, freeze_cnn=False, gpu=0, learning_rate=0.0001, log_dir='./log/debug', max_epoch=1000, max_updates=10000000.0, momentum=0.9, only_load_backbone=False, optimizer='adam', pretrain='', print_step=20, reset_lr=False, save_interval_updates=100, seed=8, stage_epoch=10, task='test', update_param='all', update_step=1, valid_batch_size=1, video_path='/home/dell/xp_workspace/data/fullFrame-210x260px', vocab_file='Data/slr-phoenix14/newtrainingClasses.txt', weight_decay=0.0)
+10-11 18:51:22: [DATASET: test]: total 629 samples.
+10-11 18:51:22: Loading checkpoint file from /home/dell/xp_workspace/sign-lang/dynamic_attn/log/reimp-conv/ep47_24.2000.pkl
+10-11 18:52:37: --------------------------------------------------
+10-11 18:52:37: Epoch: 47, DEV ACC: 0.04769, 30/629
+10-11 18:52:37: Epoch: 47, DEV WER: 0.34723, SUB: 0.20209, INS: 0.08482, DEL: 0.06032
+10-11 18:52:38: [Relaxation Evaluation] Epoch: 47, DEV WER: 28.20000, SUB: 13.00000, INS: 7.50000, DEL: 7.70000
